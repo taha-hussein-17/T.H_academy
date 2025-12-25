@@ -14,30 +14,35 @@ import {
 import Button from '../components/Button';
 import Loading from '../components/Loading';
 import { useAuth } from '../context/AuthContext';
+import { getAttendance } from '../utils/db';
+import { BookOpen } from 'lucide-react';
 
 const Attendance = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Overview');
-
-  const attendanceStats = [
-    { label: 'Attendance Rate', value: '94%', icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
-    { label: 'Total Sessions', value: '48', icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Late Arrivals', value: '2', icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-    { label: 'Absences', value: '3', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
-  ];
-
-  const recentAttendance = [
-    { id: 1, date: '2025-12-24', subject: 'React Mastery', status: 'Present', time: '09:05 AM' },
-    { id: 2, date: '2025-12-22', subject: 'UI/UX Design', status: 'Present', time: '11:00 AM' },
-    { id: 3, date: '2025-12-21', subject: 'JavaScript Deep Dive', status: 'Late', time: '02:15 PM' },
-    { id: 4, date: '2025-12-19', subject: 'Tailwind CSS', status: 'Absent', time: '-' },
-    { id: 5, date: '2025-12-18', subject: 'Backend Basics', status: 'Present', time: '11:02 AM' },
-  ];
+  const [data, setData] = useState({ stats: null, records: [] });
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 500);
-  }, []);
+    const fetchAttendance = async () => {
+      try {
+        const attendanceData = await getAttendance(user?.uid);
+        setData(attendanceData);
+      } catch (err) {
+        console.error("Failed to fetch attendance:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, [user]);
+
+  const attendanceStats = data.stats ? [
+    { label: 'Attendance Rate', value: `${data.stats.percentage}%`, icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
+    { label: 'Total Sessions', value: data.stats.total.toString(), icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { label: 'Late Arrivals', value: data.stats.late.toString(), icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+    { label: 'Absences', value: data.stats.absent.toString(), icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
+  ] : [];
 
   if (loading) return <Loading />;
 
@@ -119,7 +124,7 @@ const Attendance = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {recentAttendance.map((record) => (
+                {data.records.map((record) => (
                   <tr key={record.id} className="group hover:bg-gray-50/50 transition-colors">
                     <td className="px-8 py-6 font-bold text-secondary">{record.date}</td>
                     <td className="px-8 py-6">

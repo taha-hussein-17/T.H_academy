@@ -12,24 +12,43 @@ import {
 } from 'lucide-react';
 import Button from '../components/Button';
 import Loading from '../components/Loading';
+import { getSchedule } from '../utils/db';
 
 const Schedule = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState('All');
+  const [scheduleData, setScheduleData] = useState([]);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   
-  const scheduleData = [
-    { id: 1, day: 'Monday', time: '09:00 AM - 10:30 AM', subject: 'React Mastery', teacher: 'Taha Hussein', room: 'Room 101', color: 'bg-blue-500' },
-    { id: 2, day: 'Monday', time: '11:00 AM - 12:30 PM', subject: 'UI/UX Design', teacher: 'Sarah Ahmed', room: 'Lab 2', color: 'bg-purple-500' },
-    { id: 3, day: 'Tuesday', time: '02:00 PM - 03:30 PM', subject: 'JavaScript Deep Dive', teacher: 'Ahmed Ali', room: 'Room 204', color: 'bg-yellow-500' },
-    { id: 4, day: 'Wednesday', time: '09:00 AM - 10:30 AM', subject: 'Tailwind CSS', teacher: 'Taha Hussein', room: 'Online', color: 'bg-cyan-500' },
-    { id: 5, day: 'Thursday', time: '11:00 AM - 12:30 PM', subject: 'Backend Basics', teacher: 'Mohamed Omar', room: 'Lab 1', color: 'bg-green-500' },
-    { id: 6, day: 'Friday', time: '04:00 PM - 05:30 PM', subject: 'Portfolio Workshop', teacher: 'Sarah Ahmed', room: 'Room 105', color: 'bg-pink-500' },
-  ];
-
   useEffect(() => {
-    setTimeout(() => setLoading(false), 500);
+    const fetchSchedule = async () => {
+      try {
+        const data = await getSchedule();
+        // Flatten the data if it comes in day-grouped format or handle it accordingly
+        // LOCAL_SCHEDULE is [{day, classes: []}, ...]
+        // The original component expected flat [{id, day, time, ...}, ...]
+        const flatData = data.flatMap(dayGroup => 
+          dayGroup.classes.map(cls => ({
+            ...cls,
+            day: dayGroup.day,
+            // Add colors based on subject or random for demo
+            color: cls.subject.includes('React') ? 'bg-blue-500' : 
+                   cls.subject.includes('UX') ? 'bg-purple-500' :
+                   cls.subject.includes('CSS') ? 'bg-cyan-500' :
+                   cls.subject.includes('Java') ? 'bg-yellow-500' :
+                   cls.subject.includes('Node') ? 'bg-green-500' : 'bg-pink-500'
+          }))
+        );
+        setScheduleData(flatData);
+      } catch (err) {
+        console.error("Failed to fetch schedule:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSchedule();
   }, []);
 
   const filteredSchedule = selectedDay === 'All' 
@@ -123,7 +142,7 @@ const Schedule = () => {
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Instructor</p>
-                      <p className="text-sm font-bold text-secondary">{item.teacher}</p>
+                      <p className="text-sm font-bold text-secondary">{item.instructor || item.teacher}</p>
                     </div>
                   </div>
 

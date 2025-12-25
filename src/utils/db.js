@@ -273,13 +273,70 @@ let LOCAL_FAQS = getLocalData('tha_faqs', [
   }
 ]);
 
+let LOCAL_ATTENDANCE = getLocalData('tha_attendance', {
+  stats: {
+    present: 42,
+    absent: 3,
+    late: 5,
+    total: 50,
+    percentage: 84
+  },
+  records: [
+    { id: 1, subject: 'React.js Mastery', date: '2025-12-24', status: 'Present', time: '10:00 AM' },
+    { id: 2, subject: 'Advanced CSS', date: '2025-12-23', status: 'Late', time: '10:15 AM' },
+    { id: 3, subject: 'Backend Node.js', date: '2025-12-22', status: 'Present', time: '02:00 PM' },
+    { id: 4, subject: 'UI/UX Design', date: '2025-12-21', status: 'Absent', time: '11:00 AM' },
+    { id: 5, subject: 'Soft Skills', date: '2025-12-20', status: 'Present', time: '09:00 AM' },
+    { id: 6, subject: 'JavaScript Deep Dive', date: '2025-12-19', status: 'Present', time: '12:00 PM' },
+    { id: 7, subject: 'Next.js 15', date: '2025-12-18', status: 'Present', time: '10:00 AM' }
+  ]
+});
+
+let LOCAL_SCHEDULE = getLocalData('tha_schedule', [
+  { 
+    day: 'Sunday', 
+    classes: [
+      { id: 1, subject: 'React.js', instructor: 'Taha Ahmed', room: 'Lab 101', time: '10:00 AM - 12:00 PM', type: 'Lecture' },
+      { id: 2, subject: 'UI/UX Design', instructor: 'Sarah Dev', room: 'Studio A', time: '01:00 PM - 03:00 PM', type: 'Workshop' }
+    ]
+  },
+  { 
+    day: 'Monday', 
+    classes: [
+      { id: 3, subject: 'Advanced CSS', instructor: 'Alex Chen', room: 'Room 202', time: '09:00 AM - 11:00 AM', type: 'Lecture' },
+      { id: 4, subject: 'JavaScript Deep Dive', instructor: 'Taha Ahmed', room: 'Lab 101', time: '12:00 PM - 02:00 PM', type: 'Practical' }
+    ]
+  },
+  { 
+    day: 'Tuesday', 
+    classes: [
+      { id: 5, subject: 'Node.js Backend', instructor: 'Mohamed Omar', room: 'Lab 103', time: '10:00 AM - 01:00 PM', type: 'Lecture' }
+    ]
+  },
+  { 
+    day: 'Wednesday', 
+    classes: [
+      { id: 6, subject: 'Testing & QA', instructor: 'Laila Karim', room: 'Room 205', time: '11:00 AM - 01:00 PM', type: 'Workshop' },
+      { id: 7, subject: 'Career Development', instructor: 'Ahmed Ali', room: 'Online', time: '03:00 PM - 04:30 PM', type: 'Seminar' }
+    ]
+  },
+  { 
+    day: 'Thursday', 
+    classes: [
+      { id: 8, subject: 'Final Project', instructor: 'Taha Ahmed', room: 'Lab 101', time: '10:00 AM - 04:00 PM', type: 'Studio' }
+    ]
+  }
+]);
+
 // --- In-Memory Cache ---
 let cache = {
   courses: null,
   blog_posts: null,
   faqs: null,
   leaderboard: null,
-  users: null
+  users: null,
+  attendance: null,
+  schedule: null
 };
 
 // Fetch all courses
@@ -527,6 +584,40 @@ export const getFAQs = async () => {
   }
 };
 
+// Attendance Functions
+export const getAttendance = async (userId) => {
+  if (cache.attendance) return cache.attendance;
+  try {
+    const attendanceRef = collection(db, 'attendance');
+    const q = query(attendanceRef, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    
+    const result = snapshot.empty ? LOCAL_ATTENDANCE : {
+      stats: snapshot.docs.find(d => d.id === 'stats')?.data() || LOCAL_ATTENDANCE.stats,
+      records: snapshot.docs.filter(d => d.id !== 'stats').map(doc => ({ id: doc.id, ...doc.data() }))
+    };
+    cache.attendance = result;
+    return result;
+  } catch (err) {
+    return LOCAL_ATTENDANCE;
+  }
+};
+
+// Schedule Functions
+export const getSchedule = async () => {
+  if (cache.schedule) return cache.schedule;
+  try {
+    const scheduleRef = collection(db, 'schedule');
+    const snapshot = await getDocs(scheduleRef);
+    
+    const result = snapshot.empty ? LOCAL_SCHEDULE : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    cache.schedule = result;
+    return result;
+  } catch (err) {
+    return LOCAL_SCHEDULE;
+  }
+};
+
 // Certificate Verification
 export const verifyCertificateById = async (certId) => {
   const LOCAL_CERTS = [
@@ -559,6 +650,8 @@ export const addData = async (collectionName, data) => {
   if (collectionName === 'courses') cache.courses = null;
   else if (collectionName === 'blog_posts') cache.blog_posts = null;
   else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'attendance') cache.attendance = null;
+  else if (collectionName === 'schedule') cache.schedule = null;
   else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
 
   try {
@@ -591,6 +684,8 @@ export const updateData = async (collectionName, id, data) => {
   if (collectionName === 'courses') cache.courses = null;
   else if (collectionName === 'blog_posts') cache.blog_posts = null;
   else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'attendance') cache.attendance = null;
+  else if (collectionName === 'schedule') cache.schedule = null;
   else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
 
   try {
@@ -625,6 +720,8 @@ export const deleteData = async (collectionName, id) => {
   if (collectionName === 'courses') cache.courses = null;
   else if (collectionName === 'blog_posts') cache.blog_posts = null;
   else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'attendance') cache.attendance = null;
+  else if (collectionName === 'schedule') cache.schedule = null;
   else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
 
   try {
@@ -688,6 +785,15 @@ export const seedInitialData = async () => {
       for (const faq of LOCAL_FAQS) {
         const { id, ...data } = faq;
         await addDoc(faqCol, data);
+      }
+    }
+
+    // Seed Schedule
+    const scheduleCol = collection(db, 'schedule');
+    const scheduleSnap = await getDocs(scheduleCol);
+    if (scheduleSnap.empty) {
+      for (const day of LOCAL_SCHEDULE) {
+        await addDoc(scheduleCol, day);
       }
     }
 
