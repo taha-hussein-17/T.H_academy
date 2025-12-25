@@ -259,6 +259,68 @@ let LOCAL_FAQS = getLocalData('tha_faqs', [
   }
 ]);
 
+let LOCAL_LEARNING_PATHS = getLocalData('tha_learning_paths', [
+  {
+    id: 'path-1',
+    title: 'Frontend Development Mastery',
+    description: 'من الصفر حتى تصبح مطور واجهات أمامية محترف وجاهز لسوق العمل العالمي.',
+    duration: '6 Months',
+    coursesCount: 5,
+    level: 'Beginner to Pro',
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
+    color: 'blue',
+    steps: [
+      { title: 'أساسيات الويب (HTML/CSS)', status: 'completed' },
+      { title: 'احتراف JavaScript', status: 'current' },
+      { title: 'إطار العمل React 19', status: 'upcoming' },
+      { title: 'بناء المشاريع الحقيقية', status: 'upcoming' },
+      { title: 'التحضير للمقابلات العمل', status: 'upcoming' }
+    ]
+  },
+  {
+    id: 'path-2',
+    title: 'UI/UX Design Specialist',
+    description: 'تعلم فن تصميم واجهات المستخدم وتجربة المستخدم من المنظور التقني والجمالي.',
+    duration: '3 Months',
+    coursesCount: 3,
+    level: 'All Levels',
+    image: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?w=800',
+    color: 'purple',
+    steps: [
+      { title: 'مبادئ التصميم الجرافيكي', status: 'completed' },
+      { title: 'احتراف Figma', status: 'current' },
+      { title: 'تصميم النماذج التفاعلية', status: 'upcoming' }
+    ]
+  }
+]);
+
+let LOCAL_TESTIMONIALS = getLocalData('tha_testimonials', [
+  {
+    id: 't-1',
+    name: 'أحمد محمود',
+    role: 'مطور واجهات في Google',
+    content: 'بفضل أكاديمية طه حسين، تمكنت من تغيير مساري المهني بالكامل في 6 أشهر فقط. المحتوى عملي جداً ويركز على ما يحتاجه السوق فعلاً.',
+    avatar: 'https://i.pravatar.cc/150?img=11',
+    rating: 5
+  },
+  {
+    id: 't-2',
+    name: 'سارة خالد',
+    role: 'Freelance Designer',
+    content: 'أفضل استثمار قمت به هو الانضمام لمسار الـ UI/UX. الشرح مبسط والمتابعة مستمرة من الأستاذ طه.',
+    avatar: 'https://i.pravatar.cc/150?img=5',
+    rating: 5
+  },
+  {
+    id: 't-3',
+    name: 'ياسين علي',
+    role: 'React Developer',
+    content: 'التعامل مع React 19 كان تحدياً بالنسبة لي، لكن الكورس جعل الأمور في غاية السهولة. شكراً لكم!',
+    avatar: 'https://i.pravatar.cc/150?img=12',
+    rating: 4.8
+  }
+]);
+
 let LOCAL_ATTENDANCE = getLocalData('tha_attendance', {
   stats: {
     present: 42,
@@ -448,6 +510,16 @@ export const addCommunityPost = async (post) => {
   LOCAL_COMMUNITY = [newPost, ...LOCAL_COMMUNITY];
   saveLocalData('tha_community', LOCAL_COMMUNITY);
   return newPost;
+};
+
+// Learning Paths Functions
+export const getLearningPaths = async () => {
+  return LOCAL_LEARNING_PATHS;
+};
+
+// Testimonials Functions
+export const getTestimonials = async () => {
+  return LOCAL_TESTIMONIALS;
 };
 
 // Certificate Verification

@@ -31,11 +31,11 @@ const Navbar = () => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Courses', path: '/courses' },
+    { label: 'Paths', path: '/learning-paths' },
+    { label: 'Reviews', path: '/testimonials' },
     { label: 'Schedule', path: '/schedule' },
     { label: 'Community', path: '/community' },
-    { label: 'Attendance', path: '/attendance' },
-    { label: 'Leaderboard', path: '/leaderboard' },
-    { label: 'Blog', path: '/blog' },
+    { label: 'About', path: '/about' },
   ];
 
   if (isAdmin) {
