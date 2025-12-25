@@ -31,9 +31,10 @@ const Navbar = () => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Courses', path: '/courses' },
+    { label: 'Schedule', path: '/schedule' },
+    { label: 'Attendance', path: '/attendance' },
     { label: 'Leaderboard', path: '/leaderboard' },
     { label: 'Blog', path: '/blog' },
-    { label: 'Verify', path: '/verify-certificate' },
   ];
 
   if (isAdmin) {

@@ -22,6 +22,8 @@ import Settings from './pages/Settings';
 import Search from './pages/Search';
 import Checkout from './pages/Checkout';
 import AdminPanel from './pages/AdminPanel';
+import Schedule from './pages/Schedule';
+import Attendance from './pages/Attendance';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import Loading from './components/Loading';
@@ -80,6 +82,15 @@ function App() {
             <Route path="/terms" element={<Legal />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/schedule" element={<Schedule />} />
+            <Route 
+              path="/attendance" 
+              element={
+                <ProtectedRoute>
+                  <Attendance />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/courses/:id" element={<CourseDetails />} />
             <Route 
               path="/checkout/:courseId" 
