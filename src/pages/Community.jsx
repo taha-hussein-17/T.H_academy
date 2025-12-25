@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChatBubbleLeftRightIcon, 
-  HandThumbUpIcon, 
-  PaperAirplaneIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
-  UserCircleIcon,
-  HashtagIcon,
-  CalendarDaysIcon
-} from '@heroicons/react/24/outline';
-import { HandThumbUpIcon as HandThumbUpSolidIcon } from '@heroicons/react/24/solid';
+  MessageSquare as ChatBubbleLeftRightIcon, 
+  ThumbsUp as HandThumbUpIcon, 
+  Send as PaperAirplaneIcon,
+  Plus as PlusIcon,
+  Search as MagnifyingGlassIcon,
+  User as UserCircleIcon,
+  Hash as HashtagIcon,
+  Calendar as CalendarDaysIcon
+} from 'lucide-react';
 import { getCommunityPosts, addCommunityPost } from '../utils/db';
 import { useAuth } from '../context/AuthContext';
 import Loading from '../components/Loading';
@@ -178,11 +177,11 @@ const Community = () => {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                       <div className="flex space-x-6 space-x-reverse">
                         <button className="flex items-center text-gray-500 hover:text-blue-600 transition-colors group">
-                          <HandThumbUpIcon className="w-5 h-5 ml-1.5 group-hover:fill-blue-50" />
+                          <HandThumbUpIcon className="w-5 h-5 ml-1.5" />
                           <span className="text-sm font-medium">{post.likes}</span>
                         </button>
                         <button className="flex items-center text-gray-500 hover:text-green-600 transition-colors group">
-                          <ChatBubbleLeftRightIcon className="w-5 h-5 ml-1.5 group-hover:fill-green-50" />
+                          <ChatBubbleLeftRightIcon className="w-5 h-5 ml-1.5" />
                           <span className="text-sm font-medium">{post.comments.length}</span>
                         </button>
                       </div>
