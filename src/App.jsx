@@ -41,13 +41,19 @@ const AdminRoute = ({ children }) => {
 function App() {
   useEffect(() => {
     // Proactively seed initial data if collections are empty
+    // Only run this once per session to avoid unnecessary checks on every mount
+    const hasSeeded = sessionStorage.getItem('tha_seeded');
+    
     const initDB = async () => {
       try {
-        console.log("Checking database status...");
-        await seedInitialData();
-        console.log("Database is ready.");
+        if (!hasSeeded) {
+          console.log("Checking database status...");
+          await seedInitialData();
+          sessionStorage.setItem('tha_seeded', 'true');
+          console.log("Database is ready.");
+        }
       } catch (err) {
-        console.error("Database initialization failed. Please ensure Firestore is enabled in your Firebase Console.", err);
+        console.error("Database initialization failed.", err);
       }
     };
     initDB();

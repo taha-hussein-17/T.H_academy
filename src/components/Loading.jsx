@@ -16,7 +16,7 @@ const Loading = () => {
           rotate: [0, 10, 0]
         }}
         transition={{ 
-          duration: 1.5,
+          duration: 0.8,
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut"
@@ -34,11 +34,11 @@ const Loading = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{
-              delay: index * 0.1,
-              duration: 0.5,
+              delay: index * 0.05,
+              duration: 0.3,
               repeat: Infinity,
               repeatType: "reverse",
-              repeatDelay: 2
+              repeatDelay: 0.5
             }}
             className="text-3xl font-black text-secondary tracking-tighter"
           >
@@ -55,7 +55,7 @@ const Loading = () => {
           initial={{ x: "-100%" }}
           animate={{ x: "100%" }}
           transition={{
-            duration: 1.5,
+            duration: 0.8,
             repeat: Infinity,
             ease: "easeInOut"
           }}

@@ -683,7 +683,7 @@ const Home = () => {
                 Join for Free
               </Button>
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="lg" 
                 className="border-white text-white hover:bg-white/10 px-12 h-16 text-lg"
                 onClick={() => navigate('/courses')}

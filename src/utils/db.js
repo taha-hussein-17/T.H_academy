@@ -273,8 +273,19 @@ let LOCAL_FAQS = getLocalData('tha_faqs', [
   }
 ]);
 
+// --- In-Memory Cache ---
+let cache = {
+  courses: null,
+  blog_posts: null,
+  faqs: null,
+  leaderboard: null,
+  users: null
+};
+
 // Fetch all courses
 export const getCourses = async () => {
+  if (cache.courses) return cache.courses;
+  
   try {
     let coursesCol = collection(db, 'courses');
     let courseSnapshot = await getDocs(coursesCol);
@@ -286,13 +297,16 @@ export const getCourses = async () => {
 
     if (courseSnapshot.empty) {
       console.log("Firestore empty, using local data.");
+      cache.courses = LOCAL_COURSES;
       return LOCAL_COURSES;
     }
 
-    return courseSnapshot.docs.map(doc => ({
+    const data = courseSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
+    cache.courses = data;
+    return data;
   } catch (err) {
     console.error("Firebase Error - Falling back to local courses:", err);
     return LOCAL_COURSES;
@@ -419,13 +433,16 @@ export const getCourseProgress = async (userId, courseId) => {
 
 // Blog Functions
 export const getBlogPosts = async () => {
+  if (cache.blog_posts) return cache.blog_posts;
+
   try {
     const blogRef = collection(db, 'blog_posts');
     const q = query(blogRef, orderBy("date", "desc"));
     const snapshot = await getDocs(q);
     
-    if (snapshot.empty) return LOCAL_BLOG;
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const result = snapshot.empty ? LOCAL_BLOG : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    cache.blog_posts = result;
+    return result;
   } catch (err) {
     return LOCAL_BLOG;
   }
@@ -452,11 +469,17 @@ export const getBlogPostById = async (id) => {
 
 // Leaderboard Functions
 export const getLeaderboard = async (limitNum = 10) => {
+  if (cache.leaderboard && cache.leaderboard.length >= limitNum) {
+    return cache.leaderboard.slice(0, limitNum);
+  }
+
   try {
     const q = query(collection(db, 'users_xp'), orderBy('points', 'desc'), limit(limitNum));
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return data.length > 0 ? data : LOCAL_LEADERBOARD.slice(0, limitNum);
+    const result = data.length > 0 ? data : LOCAL_LEADERBOARD.slice(0, limitNum);
+    cache.leaderboard = result;
+    return result;
   } catch (err) {
     console.error("Firebase error, using local leaderboard:", err);
     return LOCAL_LEADERBOARD.slice(0, limitNum);
@@ -465,15 +488,19 @@ export const getLeaderboard = async (limitNum = 10) => {
 
 // Get all users for admin
 export const getUsers = async () => {
+  if (cache.users) return cache.users;
+
   try {
     const querySnapshot = await getDocs(collection(db, 'users_xp'));
     const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     // Merge with some local simulated users if empty
-    return data.length > 0 ? data : [
+    const result = data.length > 0 ? data : [
       { id: '1', name: 'John Doe', email: 'john@example.com', points: 1250, courses: 3, avatar: 'https://i.pravatar.cc/150?img=1' },
       { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 950, courses: 2, avatar: 'https://i.pravatar.cc/150?img=2' },
       { id: '3', name: 'Admin Taha', email: 'taha@thacademy.com', points: 5000, courses: 10, avatar: 'https://i.pravatar.cc/150?img=3' }
     ];
+    cache.users = result;
+    return result;
   } catch (err) {
     console.error("Firebase error, using local users:", err);
     return [
@@ -486,12 +513,15 @@ export const getUsers = async () => {
 
 // FAQ Functions
 export const getFAQs = async () => {
+  if (cache.faqs) return cache.faqs;
+
   try {
     const faqRef = collection(db, 'faqs');
     const snapshot = await getDocs(faqRef);
     
-    if (snapshot.empty) return LOCAL_FAQS;
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const result = snapshot.empty ? LOCAL_FAQS : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    cache.faqs = result;
+    return result;
   } catch (err) {
     return LOCAL_FAQS;
   }
@@ -525,6 +555,12 @@ export const verifyCertificateById = async (certId) => {
 
 // Generic Add function
 export const addData = async (collectionName, data) => {
+  // Invalidate cache
+  if (collectionName === 'courses') cache.courses = null;
+  else if (collectionName === 'blog_posts') cache.blog_posts = null;
+  else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
+
   try {
     const docRef = await addDoc(collection(db, collectionName), {
       ...data,
@@ -551,6 +587,12 @@ export const addData = async (collectionName, data) => {
 
 // Generic Update function
 export const updateData = async (collectionName, id, data) => {
+  // Invalidate cache
+  if (collectionName === 'courses') cache.courses = null;
+  else if (collectionName === 'blog_posts') cache.blog_posts = null;
+  else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
+
   try {
     const docRef = doc(db, collectionName, id);
     await updateDoc(docRef, {
@@ -579,6 +621,12 @@ export const updateData = async (collectionName, id, data) => {
 
 // Generic Delete function
 export const deleteData = async (collectionName, id) => {
+  // Invalidate cache
+  if (collectionName === 'courses') cache.courses = null;
+  else if (collectionName === 'blog_posts') cache.blog_posts = null;
+  else if (collectionName === 'faqs') cache.faqs = null;
+  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
+
   try {
     const docRef = doc(db, collectionName, id);
     await deleteDoc(docRef);
