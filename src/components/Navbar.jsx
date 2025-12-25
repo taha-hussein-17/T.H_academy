@@ -32,6 +32,7 @@ const Navbar = () => {
     { label: 'Home', path: '/' },
     { label: 'Courses', path: '/courses' },
     { label: 'Schedule', path: '/schedule' },
+    { label: 'Community', path: '/community' },
     { label: 'Attendance', path: '/attendance' },
     { label: 'Leaderboard', path: '/leaderboard' },
     { label: 'Blog', path: '/blog' },

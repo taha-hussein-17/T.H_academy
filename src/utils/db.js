@@ -314,6 +314,39 @@ let LOCAL_SCHEDULE = getLocalData('tha_schedule', [
   }
 ]);
 
+let LOCAL_COMMUNITY = getLocalData('tha_community', [
+  {
+    id: 'post-1',
+    author: {
+      name: 'Taha Ahmed',
+      avatar: 'https://i.pravatar.cc/150?img=11',
+      role: 'Instructor'
+    },
+    content: 'أهلاً بكم في مجتمع T.H Academy! هنا يمكنكم طرح الأسئلة ومشاركة مشاريعكم مع زملائكم. بالتوفيق للجميع في رحلة التعلم 🚀',
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    likes: 24,
+    comments: [
+      { id: 'c1', author: 'Ahmed Ali', content: 'شكراً جزيلاً أستاذ طه، متحمس جداً للبدء!', timestamp: new Date(Date.now() - 1800000).toISOString() }
+    ],
+    tags: ['Welcome', 'General']
+  },
+  {
+    id: 'post-2',
+    author: {
+      name: 'Sarah Hassan',
+      avatar: 'https://i.pravatar.cc/150?img=5',
+      role: 'Student'
+    },
+    content: 'واجهت مشكلة في فهم الـ React 19 compiler، هل يمكن لأحد شرحه ببساطة؟',
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
+    likes: 12,
+    comments: [
+      { id: 'c2', author: 'Mohamed Omar', content: 'ببساطة هو يقوم بعمل memoization تلقائي للمكونات دون الحاجة لاستخدام useMemo يدوياً.', timestamp: new Date(Date.now() - 3600000).toISOString() }
+    ],
+    tags: ['React', 'Help']
+  }
+]);
+
 // --- In-Memory Cache ---
 let cache = {
   courses: null,
@@ -397,6 +430,24 @@ export const getAttendance = async (userId) => {
 // Schedule Functions
 export const getSchedule = async () => {
   return LOCAL_SCHEDULE;
+};
+
+// Community Functions
+export const getCommunityPosts = async () => {
+  return LOCAL_COMMUNITY;
+};
+
+export const addCommunityPost = async (post) => {
+  const newPost = {
+    id: 'post-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    likes: 0,
+    comments: [],
+    ...post
+  };
+  LOCAL_COMMUNITY = [newPost, ...LOCAL_COMMUNITY];
+  saveLocalData('tha_community', LOCAL_COMMUNITY);
+  return newPost;
 };
 
 // Certificate Verification
