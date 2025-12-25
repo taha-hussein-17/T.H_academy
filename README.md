@@ -1,16 +1,48 @@
-# React + Vite
+# T.H Academy 🎓
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+T.H Academy is a comprehensive E-Learning platform built with modern web technologies to provide a seamless learning experience for students and an efficient management system for administrators.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Course Management**: Detailed course listings, descriptions, and progress tracking.
+- **Interactive Learning**: Integrated lesson player for a focused learning experience.
+- **User Dashboard**: Personalized dashboards for students to track their progress and settings.
+- **Leaderboard**: Competitive learning environment with a global leaderboard.
+- **Admin Panel**: Robust tools for administrators to manage courses, users, and content.
+- **Secure Authentication**: Integrated with Firebase for secure login, signup, and protected routes.
+- **Blog & FAQ**: Built-in blog for updates and an FAQ section for common queries.
+- **Certificate Verification**: System to verify certificates earned through the platform.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19 + Vite
+- **Styling**: Tailwind CSS + Framer Motion (for smooth animations)
+- **Backend/Database**: Firebase
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
 
-## Expanding the ESLint configuration
+## 📂 Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/components`: Reusable UI components like Navbar, Footer, and Buttons.
+- `src/pages`: Main application views (Home, Courses, Dashboard, etc.).
+- `src/context`: Authentication and global state management.
+- `src/utils`: Firebase configuration and database utility functions.
+
+## 🏁 Getting Started
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/taha-hussein-17/T.H_academy.git
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+## 📄 License
+
+This project is part of the T.H Academy initiative. All rights reserved.
