@@ -111,14 +111,14 @@ const About = () => {
             >
               <div className="relative z-10 p-4 bg-white rounded-[3rem] shadow-2xl border border-gray-100">
                 <img 
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=60" 
-                  alt="Team working" 
-                  className="rounded-[2.5rem] w-full shadow-inner"
+                  src="https://media.licdn.com/dms/image/v2/D4D35AQGF6NvpuU2rEA/profile-framedphoto-shrink_200_200/B4DZlRVn5XJcAY-/0/1758006247325?e=1767276000&v=beta&t=kF2TQ2FG_fz9JdjwiATDfOpOXGuoHYWS_kpPJEp5940" 
+                  alt="Founder Taha Hussein" 
+                  className="rounded-[2.5rem] w-full shadow-inner aspect-square object-cover"
                 />
               </div>
               <div className="absolute -bottom-10 -right-10 bg-primary text-white p-10 rounded-[2.5rem] shadow-2xl z-20 hidden md:block border-4 border-white">
-                <div className="text-5xl font-black mb-1">5+</div>
-                <div className="text-xs font-black uppercase tracking-widest opacity-80">Years of<br/>Experience</div>
+                <div className="text-3xl font-black mb-1">طه حسين</div>
+                <div className="text-xs font-black uppercase tracking-widest opacity-80">مؤسس الأكاديمية</div>
               </div>
               {/* Background accent */}
               <div className="absolute -top-10 -left-10 w-full h-full bg-primary/5 rounded-[3rem] -z-10 translate-x-4 translate-y-4" />
