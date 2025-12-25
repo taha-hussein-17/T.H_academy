@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Book, Clock, Award, Settings, LogOut, Loader2, Star, ChevronRight, Zap } from 'lucide-react';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 import { getUserEnrollments, getCourseProgress, getUserStats } from '../utils/db';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -54,11 +55,7 @@ const Dashboard = () => {
   ];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

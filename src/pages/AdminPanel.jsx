@@ -32,6 +32,7 @@ import {
 } from '../utils/db';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 
 const AdminPanel = () => {
   const { isAdmin } = useAuth();
@@ -167,6 +168,10 @@ const AdminPanel = () => {
     };
     fetchStats();
   }, []);
+
+  if (loading && data.length === 0) {
+    return <Loading />;
+  }
 
   if (!isAdmin) {
     return (

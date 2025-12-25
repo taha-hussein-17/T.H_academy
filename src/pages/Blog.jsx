@@ -3,6 +3,7 @@ import { Calendar, User, ArrowRight, Search, Tag, MessageCircle, Loader2, Pencil
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 import { getBlogPosts, deleteData } from '../utils/db';
 import { useAuth } from '../context/AuthContext';
 
@@ -55,11 +56,7 @@ const Blog = () => {
   const categories = ['All', ...new Set(posts.map(p => p.category))];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

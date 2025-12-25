@@ -17,6 +17,7 @@ import {
   Trash2
 } from 'lucide-react';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -67,11 +68,7 @@ const CourseDetails = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!course) {

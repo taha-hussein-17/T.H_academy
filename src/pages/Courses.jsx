@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Star, Clock, Users, BookOpen, Loader2, Search, Filter, Pencil, Trash2, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 import { getCourses, enrollInCourse, seedInitialData, deleteData } from '../utils/db';
 import { useAuth } from '../context/AuthContext';
 
@@ -84,11 +85,7 @@ const Courses = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

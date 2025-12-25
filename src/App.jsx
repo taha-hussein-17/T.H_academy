@@ -24,6 +24,7 @@ import Checkout from './pages/Checkout';
 import AdminPanel from './pages/AdminPanel';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
+import Loading from './components/Loading';
 import { useAuth } from './context/AuthContext';
 import { seedInitialData } from './utils/db';
 
@@ -32,7 +33,7 @@ const AdminRoute = ({ children }) => {
   const { user, isAdmin, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return null;
+  if (loading) return <Loading />;
   if (!user || !isAdmin) return <Navigate to="/login" state={{ from: location }} replace />;
   return children;
 };

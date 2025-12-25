@@ -8,6 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 import { getCourses } from '../utils/db';
 
 const Home = () => {
@@ -46,6 +47,8 @@ const Home = () => {
       transition: { type: 'spring', stiffness: 100 }
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="overflow-x-hidden">

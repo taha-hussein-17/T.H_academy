@@ -9,6 +9,7 @@ import {
   GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
+import Loading from '../components/Loading';
 
 const AuthContext = createContext();
 
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? <Loading /> : children}
     </AuthContext.Provider>
   );
 };
