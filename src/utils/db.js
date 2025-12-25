@@ -321,6 +321,29 @@ let LOCAL_TESTIMONIALS = getLocalData('tha_testimonials', [
   }
 ]);
 
+let LOCAL_EVENTS = getLocalData('tha_events', [
+  {
+    id: 'ev-1',
+    title: 'ورشة عمل: أساسيات React 19',
+    date: '2025-01-15',
+    time: '08:00 PM',
+    type: 'Live Session',
+    instructor: 'طه حسين',
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800',
+    description: 'تعرف على أهم المميزات الجديدة في React 19 وكيفية استخدامها في مشاريعك الحقيقية.'
+  },
+  {
+    id: 'ev-2',
+    title: 'ندوة: مستقبل الذكاء الاصطناعي في البرمجة',
+    date: '2025-01-20',
+    time: '09:00 PM',
+    type: 'Webinar',
+    instructor: 'طه حسين',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
+    description: 'مناقشة مفتوحة حول تأثير AI على سوق العمل وكيف تطور مهاراتك لتواكب العصر.'
+  }
+]);
+
 let LOCAL_ATTENDANCE = getLocalData('tha_attendance', {
   stats: {
     present: 42,
@@ -520,6 +543,11 @@ export const getLearningPaths = async () => {
 // Testimonials Functions
 export const getTestimonials = async () => {
   return LOCAL_TESTIMONIALS;
+};
+
+// Events Functions
+export const getEvents = async () => {
+  return LOCAL_EVENTS;
 };
 
 // Certificate Verification

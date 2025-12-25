@@ -27,6 +27,7 @@ import Attendance from './pages/Attendance';
 import Community from './pages/Community';
 import LearningPaths from './pages/LearningPaths';
 import Testimonials from './pages/Testimonials';
+import Events from './pages/Events';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import Loading from './components/Loading';
@@ -68,6 +69,7 @@ function App() {
             <Route path="/community" element={<Community />} />
             <Route path="/learning-paths" element={<LearningPaths />} />
             <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/events" element={<Events />} />
             <Route 
               path="/attendance" 
               element={
