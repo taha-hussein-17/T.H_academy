@@ -1,17 +1,3 @@
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc,
-  deleteDoc,
-  query, 
-  where, 
-  doc, 
-  getDoc, 
-  orderBy, 
-  limit 
-} from 'firebase/firestore';
-import { db } from './firebase';
 
 // --- Local Data for Offline/Fixing Mode ---
 // We'll use a wrapper to handle local data persistence in localStorage for simulation
@@ -341,281 +327,76 @@ let cache = {
 
 // Fetch all courses
 export const getCourses = async () => {
-  if (cache.courses) return cache.courses;
-  
-  try {
-    let coursesCol = collection(db, 'courses');
-    let courseSnapshot = await getDocs(coursesCol);
-    
-    if (courseSnapshot.empty) {
-      coursesCol = collection(db, 'Courses');
-      courseSnapshot = await getDocs(coursesCol);
-    }
-
-    if (courseSnapshot.empty) {
-      console.log("Firestore empty, using local data.");
-      cache.courses = LOCAL_COURSES;
-      return LOCAL_COURSES;
-    }
-
-    const data = courseSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    cache.courses = data;
-    return data;
-  } catch (err) {
-    console.error("Firebase Error - Falling back to local courses:", err);
-    return LOCAL_COURSES;
-  }
+  return LOCAL_COURSES;
 };
 
 // Get a single course
 export const getCourseById = async (id) => {
   if (!id) return null;
-  
-  // Check local data first for speed in offline mode
-  const localMatch = LOCAL_COURSES.find(c => c.id === id);
-  if (localMatch) return localMatch;
-
-  try {
-    let courseRef = doc(db, 'courses', id);
-    let courseSnap = await getDoc(courseRef);
-    
-    if (!courseSnap.exists()) {
-      courseRef = doc(db, 'Courses', id);
-      courseSnap = await getDoc(courseRef);
-    }
-
-    if (courseSnap.exists()) {
-      return { id: courseSnap.id, ...courseSnap.data() };
-    }
-  } catch (err) {
-    console.error("Firebase Error - Searching local data:", err);
-  }
-  return localMatch || null;
+  return LOCAL_COURSES.find(c => c.id === id) || null;
 };
 
 // Enroll user in a course
 export const enrollInCourse = async (userId, courseId) => {
-  try {
-    const enrollmentRef = collection(db, 'enrollments');
-    return await addDoc(enrollmentRef, {
-      userId,
-      courseId,
-      enrolledAt: new Date().toISOString()
-    });
-  } catch (err) {
-    console.error("Error enrolling in course:", err);
-    // Even if firebase fails, we can pretend it worked for local dev
-    return { id: 'local-enroll-' + Date.now() };
-  }
+  return { id: 'local-enroll-' + Date.now() };
 };
 
 // Get user's enrolled courses with details
 export const getUserEnrollments = async (userId) => {
-  if (!userId) return [];
-  try {
-    const enrollmentRef = collection(db, 'enrollments');
-    const q = query(enrollmentRef, where("userId", "==", userId));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) return [LOCAL_COURSES[0], LOCAL_COURSES[1]]; // Return 2 courses as demo
-
-    const courseIds = querySnapshot.docs.map(doc => doc.data().courseId);
-    const coursePromises = courseIds.map(id => getCourseById(id));
-    const courses = await Promise.all(coursePromises);
-    
-    return courses.filter(course => course !== null);
-  } catch (err) {
-    console.error("Error fetching enrollments, showing demo courses:", err);
-    return [LOCAL_COURSES[0], LOCAL_COURSES[1]];
-  }
+  return [LOCAL_COURSES[0], LOCAL_COURSES[1]]; // Return 2 courses as demo
 };
 
 // Get user stats (points, hours, etc.)
 export const getUserStats = async (userId) => {
-  if (!userId) return { points: 0, hours: 0, courses: 0 };
-  
-  try {
-    // In a real app, we'd fetch from Firestore
-    // For local mode, we calculate based on enrollments and progress
-    const enrollments = await getUserEnrollments(userId);
-    const points = enrollments.length * 500 + Math.floor(Math.random() * 1000);
-    const hours = (enrollments.length * 3.5).toFixed(1);
-    
-    return {
-      points: points.toLocaleString(),
-      hours: hours + 'h',
-      courses: enrollments.length
-    };
-  } catch (err) {
-    return { points: '1,250', hours: '4.5h', courses: 2 };
-  }
+  return { points: '1,250', hours: '4.5h', courses: 2 };
 };
 
 // Update user's lesson progress
 export const updateLessonProgress = async (userId, courseId, lessonId) => {
-  try {
-    const progressRef = collection(db, 'progress');
-    const q = query(progressRef, where("userId", "==", userId), where("courseId", "==", courseId), where("lessonId", "==", lessonId));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      await addDoc(progressRef, {
-        userId,
-        courseId,
-        lessonId,
-        completed: true,
-        updatedAt: new Date().toISOString()
-      });
-    }
-    return true;
-  } catch (err) {
-    return true; // Pretend it worked for local dev
-  }
+  return true;
 };
 
 // Get user's progress for a course
 export const getCourseProgress = async (userId, courseId) => {
-  try {
-    const progressRef = collection(db, 'progress');
-    const q = query(progressRef, where("userId", "==", userId), where("courseId", "==", courseId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data().lessonId);
-  } catch (err) {
-    return [];
-  }
+  return [];
 };
 
 // Blog Functions
 export const getBlogPosts = async () => {
-  if (cache.blog_posts) return cache.blog_posts;
-
-  try {
-    const blogRef = collection(db, 'blog_posts');
-    const q = query(blogRef, orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    
-    const result = snapshot.empty ? LOCAL_BLOG : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    cache.blog_posts = result;
-    return result;
-  } catch (err) {
-    return LOCAL_BLOG;
-  }
+  return LOCAL_BLOG;
 };
 
 export const getBlogPostById = async (id) => {
-  if (!id) return null;
-  
-  const localMatch = LOCAL_BLOG.find(p => p.id === id);
-  if (localMatch) return localMatch;
-
-  try {
-    const blogRef = doc(db, 'blog_posts', id);
-    const blogSnap = await getDoc(blogRef);
-    
-    if (blogSnap.exists()) {
-      return { id: blogSnap.id, ...blogSnap.data() };
-    }
-  } catch (err) {
-    console.error("Firebase Error - Searching local data:", err);
-  }
-  return localMatch || null;
+  return LOCAL_BLOG.find(p => p.id === id) || null;
 };
 
 // Leaderboard Functions
 export const getLeaderboard = async (limitNum = 10) => {
-  if (cache.leaderboard && cache.leaderboard.length >= limitNum) {
-    return cache.leaderboard.slice(0, limitNum);
-  }
-
-  try {
-    const q = query(collection(db, 'users_xp'), orderBy('points', 'desc'), limit(limitNum));
-    const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const result = data.length > 0 ? data : LOCAL_LEADERBOARD.slice(0, limitNum);
-    cache.leaderboard = result;
-    return result;
-  } catch (err) {
-    console.error("Firebase error, using local leaderboard:", err);
-    return LOCAL_LEADERBOARD.slice(0, limitNum);
-  }
+  return LOCAL_LEADERBOARD.slice(0, limitNum);
 };
 
 // Get all users for admin
 export const getUsers = async () => {
-  if (cache.users) return cache.users;
-
-  try {
-    const querySnapshot = await getDocs(collection(db, 'users_xp'));
-    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // Merge with some local simulated users if empty
-    const result = data.length > 0 ? data : [
-      { id: '1', name: 'John Doe', email: 'john@example.com', points: 1250, courses: 3, avatar: 'https://i.pravatar.cc/150?img=1' },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 950, courses: 2, avatar: 'https://i.pravatar.cc/150?img=2' },
-      { id: '3', name: 'Admin Taha', email: 'taha@thacademy.com', points: 5000, courses: 10, avatar: 'https://i.pravatar.cc/150?img=3' }
-    ];
-    cache.users = result;
-    return result;
-  } catch (err) {
-    console.error("Firebase error, using local users:", err);
-    return [
-      { id: '1', name: 'John Doe', email: 'john@example.com', points: 1250, courses: 3, avatar: 'https://i.pravatar.cc/150?img=1' },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 950, courses: 2, avatar: 'https://i.pravatar.cc/150?img=2' },
-      { id: '3', name: 'Admin Taha', email: 'taha@thacademy.com', points: 5000, courses: 10, avatar: 'https://i.pravatar.cc/150?img=3' }
-    ];
-  }
+  return [
+    { id: '1', name: 'John Doe', email: 'john@example.com', points: 1250, courses: 3, avatar: 'https://i.pravatar.cc/150?img=1' },
+    { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 950, courses: 2, avatar: 'https://i.pravatar.cc/150?img=2' },
+    { id: '3', name: 'Admin Taha', email: 'taha@thacademy.com', points: 5000, courses: 10, avatar: 'https://i.pravatar.cc/150?img=3' }
+  ];
 };
 
 // FAQ Functions
 export const getFAQs = async () => {
-  if (cache.faqs) return cache.faqs;
-
-  try {
-    const faqRef = collection(db, 'faqs');
-    const snapshot = await getDocs(faqRef);
-    
-    const result = snapshot.empty ? LOCAL_FAQS : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    cache.faqs = result;
-    return result;
-  } catch (err) {
-    return LOCAL_FAQS;
-  }
+  return LOCAL_FAQS;
 };
 
 // Attendance Functions
 export const getAttendance = async (userId) => {
-  if (cache.attendance) return cache.attendance;
-  try {
-    const attendanceRef = collection(db, 'attendance');
-    const q = query(attendanceRef, where("userId", "==", userId));
-    const snapshot = await getDocs(q);
-    
-    const result = snapshot.empty ? LOCAL_ATTENDANCE : {
-      stats: snapshot.docs.find(d => d.id === 'stats')?.data() || LOCAL_ATTENDANCE.stats,
-      records: snapshot.docs.filter(d => d.id !== 'stats').map(doc => ({ id: doc.id, ...doc.data() }))
-    };
-    cache.attendance = result;
-    return result;
-  } catch (err) {
-    return LOCAL_ATTENDANCE;
-  }
+  return LOCAL_ATTENDANCE;
 };
 
 // Schedule Functions
 export const getSchedule = async () => {
-  if (cache.schedule) return cache.schedule;
-  try {
-    const scheduleRef = collection(db, 'schedule');
-    const snapshot = await getDocs(scheduleRef);
-    
-    const result = snapshot.empty ? LOCAL_SCHEDULE : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    cache.schedule = result;
-    return result;
-  } catch (err) {
-    return LOCAL_SCHEDULE;
-  }
+  return LOCAL_SCHEDULE;
 };
 
 // Certificate Verification
@@ -628,179 +409,61 @@ export const verifyCertificateById = async (certId) => {
 
   const localMatch = LOCAL_CERTS.find(c => c.id === certId.toUpperCase());
   if (localMatch) return localMatch;
-
-  try {
-    const certRef = collection(db, 'certificates');
-    const q = query(certRef, where("certId", "==", certId));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return { id: snapshot.docs[0].id, ...snapshot.docs[0].data(), status: 'success' };
-    }
-    return { status: 'error', message: 'Certificate not found.' };
-  } catch (err) {
-    return { status: 'error', message: 'Verification failed.' };
-  }
+  return { status: 'error', message: 'Certificate not found.' };
 };
 
 // --- Admin Management Functions ---
 
 // Generic Add function
 export const addData = async (collectionName, data) => {
-  // Invalidate cache
-  if (collectionName === 'courses') cache.courses = null;
-  else if (collectionName === 'blog_posts') cache.blog_posts = null;
-  else if (collectionName === 'faqs') cache.faqs = null;
-  else if (collectionName === 'attendance') cache.attendance = null;
-  else if (collectionName === 'schedule') cache.schedule = null;
-  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
-
-  try {
-    const docRef = await addDoc(collection(db, collectionName), {
-      ...data,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    return { id: docRef.id, ...data };
-  } catch (err) {
-    console.warn(`Firebase Add failed for ${collectionName}, adding to local storage:`, err);
-    const localKey = collectionName === 'courses' ? 'tha_courses' : 
-                     collectionName === 'blog_posts' ? 'tha_blog' : 
-                     collectionName === 'faqs' ? 'tha_faqs' : null;
-    
-    if (localKey) {
-      const localData = getLocalData(localKey, []);
-      const newItem = { id: 'local-' + Date.now(), ...data };
-      localData.push(newItem);
-      saveLocalData(localKey, localData);
-      return newItem;
-    }
-    throw err;
+  const localKey = collectionName === 'courses' ? 'tha_courses' : 
+                   collectionName === 'blog_posts' ? 'tha_blog' : 
+                   collectionName === 'faqs' ? 'tha_faqs' : null;
+  
+  if (localKey) {
+    const localData = getLocalData(localKey, []);
+    const newItem = { id: 'local-' + Date.now(), ...data };
+    localData.push(newItem);
+    saveLocalData(localKey, localData);
+    return newItem;
   }
+  return { id: 'local-' + Date.now(), ...data };
 };
 
 // Generic Update function
 export const updateData = async (collectionName, id, data) => {
-  // Invalidate cache
-  if (collectionName === 'courses') cache.courses = null;
-  else if (collectionName === 'blog_posts') cache.blog_posts = null;
-  else if (collectionName === 'faqs') cache.faqs = null;
-  else if (collectionName === 'attendance') cache.attendance = null;
-  else if (collectionName === 'schedule') cache.schedule = null;
-  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
-
-  try {
-    const docRef = doc(db, collectionName, id);
-    await updateDoc(docRef, {
-      ...data,
-      updatedAt: new Date().toISOString()
-    });
-    return true;
-  } catch (err) {
-    console.warn(`Firebase Update failed for ${collectionName}, updating local storage:`, err);
-    const localKey = collectionName === 'courses' ? 'tha_courses' : 
-                     collectionName === 'blog_posts' ? 'tha_blog' : 
-                     collectionName === 'faqs' ? 'tha_faqs' : null;
-    
-    if (localKey) {
-      const localData = getLocalData(localKey, []);
-      const index = localData.findIndex(item => item.id === id);
-      if (index !== -1) {
-        localData[index] = { ...localData[index], ...data };
-        saveLocalData(localKey, localData);
-        return true;
-      }
+  const localKey = collectionName === 'courses' ? 'tha_courses' : 
+                   collectionName === 'blog_posts' ? 'tha_blog' : 
+                   collectionName === 'faqs' ? 'tha_faqs' : null;
+  
+  if (localKey) {
+    const localData = getLocalData(localKey, []);
+    const index = localData.findIndex(item => item.id === id);
+    if (index !== -1) {
+      localData[index] = { ...localData[index], ...data };
+      saveLocalData(localKey, localData);
+      return true;
     }
-    return false;
   }
+  return true;
 };
 
 // Generic Delete function
 export const deleteData = async (collectionName, id) => {
-  // Invalidate cache
-  if (collectionName === 'courses') cache.courses = null;
-  else if (collectionName === 'blog_posts') cache.blog_posts = null;
-  else if (collectionName === 'faqs') cache.faqs = null;
-  else if (collectionName === 'attendance') cache.attendance = null;
-  else if (collectionName === 'schedule') cache.schedule = null;
-  else if (collectionName === 'users_xp') { cache.users = null; cache.leaderboard = null; }
-
-  try {
-    const docRef = doc(db, collectionName, id);
-    await deleteDoc(docRef);
+  const localKey = collectionName === 'courses' ? 'tha_courses' : 
+                   collectionName === 'blog_posts' ? 'tha_blog' : 
+                   collectionName === 'faqs' ? 'tha_faqs' : null;
+  
+  if (localKey) {
+    const localData = getLocalData(localKey, []);
+    const filtered = localData.filter(item => item.id !== id);
+    saveLocalData(localKey, filtered);
     return true;
-  } catch (err) {
-    console.warn(`Firebase Delete failed for ${collectionName}, deleting from local storage:`, err);
-    const localKey = collectionName === 'courses' ? 'tha_courses' : 
-                     collectionName === 'blog_posts' ? 'tha_blog' : 
-                     collectionName === 'faqs' ? 'tha_faqs' : null;
-    
-    if (localKey) {
-      const localData = getLocalData(localKey, []);
-      const filtered = localData.filter(item => item.id !== id);
-      saveLocalData(localKey, filtered);
-      return true;
-    }
-    return false;
   }
+  return true;
 };
 
-// Seed Initial Data (Expanded)
+// Seed Initial Data (Empty as we use local directly now)
 export const seedInitialData = async () => {
-  try {
-    // Seed Courses
-    const coursesCol = collection(db, 'courses');
-    const courseSnap = await getDocs(coursesCol);
-
-    if (courseSnap.empty) {
-      for (const course of LOCAL_COURSES) {
-        const { id, ...data } = course;
-        await addDoc(coursesCol, data);
-      }
-    }
-
-    // Seed Blog
-    const blogCol = collection(db, 'blog_posts');
-    const blogSnap = await getDocs(blogCol);
-    if (blogSnap.empty) {
-      for (const post of LOCAL_BLOG) {
-        const { id, ...data } = post;
-        await addDoc(blogCol, data);
-      }
-    }
-
-    // Seed Leaderboard
-    const xpCol = collection(db, 'users_xp');
-    const xpSnap = await getDocs(xpCol);
-    if (xpSnap.empty) {
-      for (const xp of LOCAL_LEADERBOARD) {
-        const { id, ...data } = xp;
-        await addDoc(xpCol, data);
-      }
-    }
-
-    // Seed FAQs
-    const faqCol = collection(db, 'faqs');
-    const faqSnap = await getDocs(faqCol);
-    if (faqSnap.empty) {
-      for (const faq of LOCAL_FAQS) {
-        const { id, ...data } = faq;
-        await addDoc(faqCol, data);
-      }
-    }
-
-    // Seed Schedule
-    const scheduleCol = collection(db, 'schedule');
-    const scheduleSnap = await getDocs(scheduleCol);
-    if (scheduleSnap.empty) {
-      for (const day of LOCAL_SCHEDULE) {
-        await addDoc(scheduleCol, day);
-      }
-    }
-
-    console.log("All initial data seeded successfully!");
-    return true;
-  } catch (err) {
-    console.error("Error seeding initial data:", err);
-    return false;
-  }
+  return true;
 };
