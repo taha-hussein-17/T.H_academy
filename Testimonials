@@ -1,0 +1,29 @@
+[33mcommit d51dbc1d86685624bd8be32ee72ade6da1a1aa54[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Taha Hussein <capootaha17@gmail.com>
+Date:   Thu Dec 25 16:52:25 2025 +0200
+
+    Update foundation year in About page and sync latest changes
+
+[33mcommit 99d5df06e4f6f8a344c00a094e9dd2b3a8f52c80[m
+Author: Taha Hussein <capootaha17@gmail.com>
+Date:   Thu Dec 25 16:13:44 2025 +0200
+
+    Add Events page and finalize all new academy pages
+
+[33mcommit 494509a012e35852a9c652f23aa25476683c802c[m
+Author: Taha Hussein <capootaha17@gmail.com>
+Date:   Thu Dec 25 16:11:42 2025 +0200
+
+    Add Learning Paths and Testimonials pages, resolve build issues, and update personal branding
+
+[33mcommit 8e65804a1aebba9b47a7822ef9b74844cbf260c0[m
+Author: Taha Hussein <capootaha17@gmail.com>
+Date:   Thu Dec 25 16:00:48 2025 +0200
+
+    feat: add Attendance and Schedule pages
+
+[33mcommit a368a92903f9c2292926afe522d2b5505597d85c[m
+Author: Taha Hussein <capootaha17@gmail.com>
+Date:   Thu Dec 25 15:52:04 2025 +0200
+
+    feat: add Attendance and Schedule pages

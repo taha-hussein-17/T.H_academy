@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  RocketLaunchIcon, 
-  ClockIcon, 
-  AcademicCapIcon,
-  ChevronRightIcon,
-  CheckCircleIcon,
-  PlayCircleIcon
-} from '@heroicons/react/24/outline'; // Using Lucide equivalents or keeping consistency
-import { 
   Rocket, 
   Clock, 
   GraduationCap, 
