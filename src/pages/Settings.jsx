@@ -4,7 +4,7 @@ import {
   User, Lock, Bell, Shield, Eye, 
   Globe, Moon, Laptop, CreditCard,
   LogOut, ChevronRight, Camera,
-  CheckCircle2, AlertCircle
+  CheckCircle2, AlertCircle, FileText
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -14,6 +14,26 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [notifStates, setNotifStates] = useState({
+    'Course Updates': true,
+    'Leaderboard Alerts': true,
+    'Community Mentions': false,
+    'Newsletter': true
+  });
+  const [privacyStates, setPrivacyStates] = useState({
+    'Public Profile': true,
+    'Show on Leaderboard': true,
+    'Search Engine Indexing': false,
+    'Course Activity': true
+  });
+
+  const toggleNotif = (title) => {
+    setNotifStates(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  const togglePrivacy = (title) => {
+    setPrivacyStates(prev => ({ ...prev, [title]: !prev[title] }));
+  };
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -144,18 +164,21 @@ const Settings = () => {
 
                   <div className="space-y-6">
                     {[
-                      { title: 'Course Updates', desc: 'New lessons and course announcements', active: true },
-                      { title: 'Leaderboard Alerts', desc: 'When you change rank or receive a badge', active: true },
-                      { title: 'Community Mentions', desc: 'When someone replies to your comments', active: false },
-                      { title: 'Newsletter', desc: 'Weekly tips and academy news', active: true },
+                      { title: 'Course Updates', desc: 'New lessons and course announcements' },
+                      { title: 'Leaderboard Alerts', desc: 'When you change rank or receive a badge' },
+                      { title: 'Community Mentions', desc: 'When someone replies to your comments' },
+                      { title: 'Newsletter', desc: 'Weekly tips and academy news' },
                     ].map((item, i) => (
                       <div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-gray-50">
                         <div>
                           <h4 className="font-black text-secondary mb-1">{item.title}</h4>
                           <p className="text-sm text-gray-500 font-medium">{item.desc}</p>
                         </div>
-                        <button className={`w-14 h-8 rounded-full transition-all relative ${item.active ? 'bg-primary' : 'bg-gray-300'}`}>
-                          <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${item.active ? 'right-1' : 'left-1'}`} />
+                        <button 
+                          onClick={() => toggleNotif(item.title)}
+                          className={`w-14 h-8 rounded-full transition-all relative ${notifStates[item.title] ? 'bg-primary' : 'bg-gray-300'}`}
+                        >
+                          <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${notifStates[item.title] ? 'right-1' : 'left-1'}`} />
                         </button>
                       </div>
                     ))}
@@ -188,7 +211,106 @@ const Settings = () => {
                 </div>
               )}
 
-              {/* Common Footer */}
+              {activeTab === 'privacy' && (
+                <div className="space-y-12">
+                  <div>
+                    <h2 className="text-2xl font-black text-secondary mb-2">Privacy & Security</h2>
+                    <p className="text-gray-500 font-medium">Manage your visibility and data privacy.</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    {[
+                      { title: 'Public Profile', desc: 'Allow others to see your progress and badges' },
+                      { title: 'Show on Leaderboard', desc: 'Display your name in the global ranking' },
+                      { title: 'Search Engine Indexing', desc: 'Allow search engines to find your profile' },
+                      { title: 'Course Activity', desc: 'Show what courses you are currently taking' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-gray-50">
+                        <div>
+                          <h4 className="font-black text-secondary mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-500 font-medium">{item.desc}</p>
+                        </div>
+                        <button 
+                          onClick={() => togglePrivacy(item.title)}
+                          className={`w-14 h-8 rounded-full transition-all relative ${privacyStates[item.title] ? 'bg-primary' : 'bg-gray-300'}`}
+                        >
+                          <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${privacyStates[item.title] ? 'right-1' : 'left-1'}`} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-8 rounded-[2rem] bg-secondary text-white space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Eye className="text-primary" />
+                      <h4 className="font-black">Incognito Mode</h4>
+                    </div>
+                    <p className="text-sm text-white/60 font-medium">While active, your progress won't be visible to others, and you won't appear on the leaderboard.</p>
+                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Enable Incognito</Button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'billing' && (
+                <div className="space-y-12">
+                  <div>
+                    <h2 className="text-2xl font-black text-secondary mb-2">Billing & Subscription</h2>
+                    <p className="text-gray-500 font-medium">Manage your payment methods and invoices.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-8 rounded-[2rem] bg-gradient-to-br from-secondary to-secondary/80 text-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                        <CreditCard size={120} />
+                      </div>
+                      <p className="text-xs font-black uppercase tracking-widest text-white/60 mb-8">Primary Card</p>
+                      <div className="space-y-1 mb-8">
+                        <p className="text-xl font-black">•••• •••• •••• 4242</p>
+                        <p className="text-sm font-medium text-white/60">Expires 12/26</p>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <p className="font-black text-lg">Visa</p>
+                        <button className="text-xs font-black uppercase tracking-widest bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors">Edit</button>
+                      </div>
+                    </div>
+
+                    <div className="p-8 rounded-[2rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-center group hover:border-primary transition-colors cursor-pointer">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary/10 group-hover:text-primary transition-all mb-4">
+                        <CreditCard size={24} />
+                      </div>
+                      <h4 className="font-black text-secondary mb-1">Add New Method</h4>
+                      <p className="text-xs text-gray-500 font-medium uppercase tracking-widest">Credit or Debit Card</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-secondary">Recent Invoices</h3>
+                    <div className="space-y-3">
+                      {[
+                        { id: '#INV-001', date: 'Dec 12, 2025', amount: '$49.00', status: 'Paid' },
+                        { id: '#INV-002', date: 'Nov 12, 2025', amount: '$49.00', status: 'Paid' },
+                        { id: '#INV-003', date: 'Oct 12, 2025', amount: '$49.00', status: 'Paid' },
+                      ].map((inv, i) => (
+                        <div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-gray-100">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-secondary">
+                              <FileText size={18} />
+                            </div>
+                            <div>
+                              <p className="font-black text-secondary">{inv.id}</p>
+                              <p className="text-xs text-gray-500 font-medium">{inv.date}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-black text-secondary">{inv.amount}</p>
+                            <p className="text-[10px] font-black uppercase text-green-500 tracking-widest">{inv.status}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="mt-16 pt-8 border-t border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {success && (
