@@ -29,6 +29,9 @@ import Community from './pages/Community';
 import LearningPaths from './pages/LearningPaths';
 import Testimonials from './pages/Testimonials';
 import Events from './pages/Events';
+import Exams from './pages/Exams';
+import ExamSession from './pages/ExamSession';
+import AdminGradeExam from './pages/AdminGradeExam';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import Loading from './components/Loading';
@@ -71,6 +74,30 @@ function App() {
             <Route path="/learning-paths" element={<LearningPaths />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/events" element={<Events />} />
+            <Route 
+              path="/exams" 
+              element={
+                <ProtectedRoute>
+                  <Exams />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/exams/:id" 
+              element={
+                <ProtectedRoute>
+                  <ExamSession />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/grade/:submissionId" 
+              element={
+                <AdminRoute>
+                  <AdminGradeExam />
+                </AdminRoute>
+              } 
+            />
             <Route 
               path="/attendance" 
               element={

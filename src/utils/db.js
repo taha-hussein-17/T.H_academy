@@ -461,6 +461,35 @@ let LOCAL_CHATS = getLocalData('tha_chats', [
   }
 ]);
 
+let LOCAL_EXAMS = getLocalData('tha_exams', [
+  {
+    id: 'exam-1',
+    title: 'React 19 Core Fundamentals',
+    description: 'اختبار شامل في أساسيات React 19 والتحسينات الجديدة.',
+    duration: 60, // minutes
+    questions: [
+      { id: 'q1', type: 'multiple-choice', text: 'ما هو الهدف من React Compiler؟', options: ['تحسين الأداء تلقائياً', 'كتابة CSS', 'إدارة قواعد البيانات', 'إنشاء تطبيقات موبايل'], correct: 0 },
+      { id: 'q2', type: 'text', text: 'اشرح بأسلوبك كيفية عمل الـ use hook في React 19.' }
+    ],
+    status: 'published',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'exam-2',
+    title: 'Advanced JavaScript Concepts',
+    description: 'اختبار متقدم يغطي الـ Closures والـ Prototypes والـ Async patterns.',
+    duration: 45,
+    questions: [
+      { id: 'q1', type: 'multiple-choice', text: 'أي مما يلي ليس من أنواع الـ Scopes في JS؟', options: ['Global', 'Local', 'Functional', 'Database'], correct: 3 },
+      { id: 'q2', type: 'text', text: 'ما الفرق بين الـ Prototype والـ __proto__؟' }
+    ],
+    status: 'published',
+    createdAt: new Date().toISOString()
+  }
+]);
+
+let LOCAL_EXAM_SUBMISSIONS = getLocalData('tha_exam_submissions', []);
+
 // Notifications & Reviews Functions
 export const getNotifications = async (userId) => {
   return LOCAL_NOTIFICATIONS;
@@ -481,6 +510,56 @@ export const addReview = async (review) => {
   LOCAL_REVIEWS.push(newReview);
   saveLocalData('tha_reviews', LOCAL_REVIEWS);
   return newReview;
+};
+
+// Exam Functions
+export const getExams = async () => {
+  return LOCAL_EXAMS;
+};
+
+export const getExamById = async (id) => {
+  return LOCAL_EXAMS.find(e => e.id === id);
+};
+
+export const submitExam = async (submission) => {
+  const newSubmission = { 
+    ...submission, 
+    id: 'sub-' + Date.now(), 
+    submittedAt: new Date().toISOString(),
+    status: 'pending' // pending, graded
+  };
+  LOCAL_EXAM_SUBMISSIONS.push(newSubmission);
+  saveLocalData('tha_exam_submissions', LOCAL_EXAM_SUBMISSIONS);
+  return newSubmission;
+};
+
+export const getSubmissionsByExamId = async (examId) => {
+  return LOCAL_EXAM_SUBMISSIONS.filter(s => s.examId === examId);
+};
+
+export const getSubmissionsByUserId = async (userId) => {
+  return LOCAL_EXAM_SUBMISSIONS.filter(s => s.userId === userId);
+};
+
+export const getAllSubmissions = async () => {
+  return LOCAL_EXAM_SUBMISSIONS;
+};
+
+export const gradeSubmission = async (submissionId, gradeData) => {
+  LOCAL_EXAM_SUBMISSIONS = LOCAL_EXAM_SUBMISSIONS.map(s => 
+    s.id === submissionId 
+      ? { ...s, ...gradeData, status: 'graded', gradedAt: new Date().toISOString() } 
+      : s
+  );
+  saveLocalData('tha_exam_submissions', LOCAL_EXAM_SUBMISSIONS);
+  return true;
+};
+
+export const addExam = async (exam) => {
+  const newExam = { ...exam, id: 'exam-' + Date.now(), createdAt: new Date().toISOString() };
+  LOCAL_EXAMS.push(newExam);
+  saveLocalData('tha_exams', LOCAL_EXAMS);
+  return newExam;
 };
 
 // Chat Functions

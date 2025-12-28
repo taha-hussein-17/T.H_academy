@@ -19,13 +19,15 @@ import {
   Users,
   Zap
 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   getCourses, 
   getBlogPosts, 
   getFAQs, 
   getLeaderboard,
   getUsers,
+  getExams,
+  getAllSubmissions,
   addData, 
   updateData, 
   deleteData 
@@ -36,6 +38,7 @@ import Loading from '../components/Loading';
 
 const AdminPanel = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('courses');
   const [data, setData] = useState([]);
@@ -72,6 +75,8 @@ const AdminPanel = () => {
       else if (activeTab === 'blog') result = await getBlogPosts();
       else if (activeTab === 'faqs') result = await getFAQs();
       else if (activeTab === 'leaderboard' || activeTab === 'users') result = await getUsers();
+      else if (activeTab === 'exams') result = await getExams();
+      else if (activeTab === 'submissions') result = await getAllSubmissions();
       setData(result);
     } catch (err) {
       console.error(err);
@@ -93,6 +98,7 @@ const AdminPanel = () => {
       if (newItem.questions) newItem.questions = JSON.parse(newItem.questions);
       if (newItem.points) newItem.points = parseInt(newItem.points);
       if (newItem.courses) newItem.courses = parseInt(newItem.courses);
+      if (newItem.duration) newItem.duration = parseInt(newItem.duration);
     } catch (err) {
       console.error("JSON Parsing failed:", err);
       setMessage({ type: 'error', text: 'Invalid JSON format in nested fields.' });
@@ -103,7 +109,8 @@ const AdminPanel = () => {
     try {
       const collectionName = activeTab === 'courses' ? 'courses' : 
                              activeTab === 'blog' ? 'blog_posts' : 
-                             (activeTab === 'leaderboard' || activeTab === 'users') ? 'users_xp' : 'faqs';
+                             (activeTab === 'leaderboard' || activeTab === 'users') ? 'users_xp' : 
+                             activeTab === 'exams' ? 'exams' : 'faqs';
       
       if (isAdding) {
         await addData(collectionName, newItem);
@@ -144,7 +151,7 @@ const AdminPanel = () => {
   };
 
   const filteredData = data.filter(item => 
-    (item.title || item.category || item.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+    (item.title || item.category || item.name || item.userName || item.examTitle || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const [stats, setStats] = useState({
@@ -253,6 +260,8 @@ const AdminPanel = () => {
               <nav className="space-y-2">
                 {[
                   { id: 'courses', label: 'Courses', icon: BookOpen },
+                  { id: 'exams', label: 'Exams', icon: FileText },
+                  { id: 'submissions', label: 'Student Answers', icon: CheckCircle2 },
                   { id: 'blog', label: 'Blog Posts', icon: FileText },
                   { id: 'faqs', label: 'FAQs', icon: MessageSquare },
                   { id: 'leaderboard', label: 'Leaderboard', icon: Database },
@@ -382,23 +391,42 @@ const AdminPanel = () => {
                             </div>
                           )}
                           <div className="min-w-0">
-                            <h4 className="font-bold text-secondary truncate">{item.title || item.name || item.category}</h4>
-                            <p className="text-sm text-gray-500 truncate">{item.description || item.email || item.author || (item.questions ? `${item.questions.length} Questions` : '')}</p>
+                            <h4 className="font-bold text-secondary truncate">{item.title || item.name || item.category || `${item.userName} - ${item.examTitle}`}</h4>
+                            <p className="text-sm text-gray-500 truncate">
+                              {activeTab === 'submissions' ? (
+                                <span className={`font-black uppercase tracking-tighter ${item.status === 'graded' ? 'text-green-500' : 'text-yellow-500'}`}>
+                                  {item.status === 'graded' ? `Graded: ${item.grade}%` : 'Pending Review'}
+                                </span>
+                              ) : (
+                                item.description || item.email || item.author || (item.questions ? `${item.questions.length} Questions` : '')
+                              )}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 ml-4">
-                          <button 
-                            onClick={() => { setEditingItem(item); setIsAdding(false); }}
-                            className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all"
-                          >
-                            <Edit size={18} />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(item.id)}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          {activeTab === 'submissions' ? (
+                            <button 
+                              onClick={() => navigate(`/admin/grade/${item.id}`)}
+                              className="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-secondary transition-all shadow-md"
+                            >
+                              {item.status === 'graded' ? 'View/Edit Grade' : 'Grade Now'}
+                            </button>
+                          ) : (
+                            <>
+                              <button 
+                                onClick={() => { setEditingItem(item); setIsAdding(false); }}
+                                className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all"
+                              >
+                                <Edit size={18} />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(item.id)}
+                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))
@@ -455,6 +483,34 @@ const AdminPanel = () => {
                         className="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
                       />
                     </div>
+
+                    {activeTab === 'exams' && (
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-400 uppercase tracking-tighter">Duration (Minutes)</label>
+                          <input
+                            type="number"
+                            name="duration"
+                            defaultValue={editingItem?.duration || 60}
+                            required
+                            className="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-black text-gray-400 uppercase tracking-tighter">Questions (JSON format)</label>
+                          <textarea
+                            name="questions"
+                            defaultValue={JSON.stringify(editingItem?.questions || [], null, 2)}
+                            rows="8"
+                            className="w-full px-6 py-4 rounded-2xl border border-gray-100 font-mono text-xs focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all resize-none"
+                            placeholder='[{"q": "Question?", "options": ["A", "B"], "correct": 0}]'
+                          />
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                            Must be valid JSON array of objects.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     
                     {(activeTab === 'leaderboard' || activeTab === 'users') && (
                       <>

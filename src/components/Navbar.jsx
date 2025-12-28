@@ -54,6 +54,7 @@ const Navbar = () => {
     { label: 'Paths', path: '/learning-paths' },
     { label: 'Reviews', path: '/testimonials' },
     { label: 'Events', path: '/events' },
+    { label: 'Exams', path: '/exams' },
     { label: 'Schedule', path: '/schedule' },
     { label: 'Community', path: '/community' },
     { label: 'About', path: '/about' },
