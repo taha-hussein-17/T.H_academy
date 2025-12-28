@@ -3,9 +3,12 @@ import { MessageCircle, X, Send, User, Loader2, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { getChatMessages, sendChatMessage } from '../utils/db';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ChatWidget = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -59,7 +62,6 @@ const ChatWidget = () => {
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
         const adminMsg = await sendChatMessage('admin', randomResponse);
-        // We need to re-fetch or manually add if we want real-time feel
         setMessages(prev => [...prev, adminMsg]);
       }, 2000);
 
@@ -67,8 +69,6 @@ const ChatWidget = () => {
       console.error(err);
     }
   };
-
-  if (!user) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-[1000]">
@@ -99,58 +99,92 @@ const ChatWidget = () => {
               </button>
             </div>
 
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            {!user ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-gray-50/50">
+                <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
+                  <MessageCircle size={32} />
                 </div>
-              ) : messages.length === 0 ? (
-                <div className="text-center py-10">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                    <MessageCircle size={32} />
-                  </div>
-                  <p className="text-gray-500 text-sm">ابدأ المحادثة مع المدرب الآن</p>
-                </div>
-              ) : (
-                messages.map((msg, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`flex ${msg.sender === user.uid ? 'justify-end' : 'justify-start'}`}
+                <h4 className="text-xl font-black text-secondary mb-2">Login to Chat</h4>
+                <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                  Join our community to get 24/7 support from our expert instructors.
+                </p>
+                <div className="flex flex-col w-full gap-3">
+                  <button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate('/login', { state: { from: location } });
+                    }}
+                    className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-secondary transition-all"
                   >
-                    <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${
-                      msg.sender === user.uid 
-                      ? 'bg-primary text-white rounded-tr-none' 
-                      : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-tl-none'
-                    }`}>
-                      {msg.text}
-                      <div className={`text-[10px] mt-1.5 ${msg.sender === user.uid ? 'text-white/60' : 'text-gray-400'}`}>
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
+                    Login Now
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate('/signup', { state: { from: location } });
+                    }}
+                    className="w-full bg-white text-secondary border border-gray-200 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                  >
+                    Create Account
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Messages Area */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+                  {loading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="w-6 h-6 text-primary animate-spin" />
                     </div>
-                  </div>
-                ))
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                  ) : messages.length === 0 ? (
+                    <div className="text-center py-10">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                        <MessageCircle size={32} />
+                      </div>
+                      <p className="text-gray-500 text-sm">ابدأ المحادثة مع المدرب الآن</p>
+                    </div>
+                  ) : (
+                    messages.map((msg, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`flex ${msg.senderId === user.uid ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${
+                          msg.senderId === user.uid 
+                          ? 'bg-primary text-white rounded-tr-none' 
+                          : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-tl-none'
+                        }`}>
+                          {msg.text}
+                          <div className={`text-[10px] mt-1.5 ${msg.senderId === user.uid ? 'text-white/60' : 'text-gray-400'}`}>
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
 
-            {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="اكتب رسالتك هنا..."
-                className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition"
-              />
-              <button 
-                type="submit"
-                disabled={!newMessage.trim()}
-                className="w-11 h-11 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-secondary transition-all disabled:opacity-50"
-              >
-                <Send size={18} />
-              </button>
-            </form>
+                {/* Input Area */}
+                <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-2">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="اكتب رسالتك هنا..."
+                    className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={!newMessage.trim()}
+                    className="w-11 h-11 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-secondary transition-all disabled:opacity-50"
+                  >
+                    <Send size={18} />
+                  </button>
+                </form>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

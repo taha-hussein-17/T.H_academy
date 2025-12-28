@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import { Mail, Lock, User, AlertCircle, Chrome } from 'lucide-react';
@@ -12,10 +12,13 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const { signup, loginWithGoogle, loginAsGuest } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
 
   const handleGuestLogin = () => {
     loginAsGuest();
-    navigate('/');
+    navigate(from, { replace: true });
   };
 
   const handleSubmit = async (e) => {
@@ -24,7 +27,7 @@ const Signup = () => {
       setError('');
       setLoading(true);
       await signup(email, password, displayName);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       setError('Failed to create an account. ' + err.message);
     }
@@ -36,7 +39,7 @@ const Signup = () => {
       setError('');
       setLoading(true);
       await loginWithGoogle();
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       console.error(err);
       setError('Google Sign-In failed. Make sure it is enabled in Firebase Console.');

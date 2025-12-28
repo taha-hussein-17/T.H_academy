@@ -68,20 +68,12 @@ const Courses = () => {
     }
   };
 
-  const handleEnroll = async (courseId) => {
+  const handleEnroll = (courseId) => {
     if (!user) {
-      navigate('/login');
+      navigate('/login', { state: { from: { pathname: `/checkout/${courseId}` } } });
       return;
     }
-
-    try {
-      await enrollInCourse(user.uid, courseId);
-      alert("Successfully enrolled!");
-      navigate('/dashboard');
-    } catch (err) {
-      console.error("Enrollment failed:", err);
-      alert("Failed to enroll. Please try again.");
-    }
+    navigate(`/checkout/${courseId}`);
   };
 
   if (loading) {

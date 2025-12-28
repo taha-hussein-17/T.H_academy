@@ -60,10 +60,6 @@ const CourseDetails = () => {
   }, [id, user]);
 
   const handleEnroll = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     navigate(`/checkout/${id}`);
   };
 

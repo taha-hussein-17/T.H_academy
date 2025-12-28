@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import { Mail, Lock, AlertCircle, Chrome } from 'lucide-react';
@@ -12,14 +12,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle, loginAsGuest, loginAsAdmin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showAdminShortcut, setShowAdminShortcut] = useState(false);
 
-  // Toggle admin shortcut with a hidden sequence or just show it for dev
-  // For now, let's just add it as a secondary option
+  const from = location.state?.from?.pathname || "/";
 
   const handleGuestLogin = () => {
     loginAsGuest();
-    navigate('/');
+    navigate(from, { replace: true });
   };
 
   const handleAdminLogin = () => {
@@ -33,7 +33,7 @@ const Login = () => {
       setError('');
       setLoading(true);
       await login(email, password);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
     }
@@ -45,7 +45,7 @@ const Login = () => {
       setError('');
       setLoading(true);
       await loginWithGoogle();
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       console.error(err);
       setError('Google Sign-In failed. Make sure it is enabled in Firebase Console.');
