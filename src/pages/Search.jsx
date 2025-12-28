@@ -68,7 +68,7 @@ const Search = () => {
   const totalResults = results.courses.length + results.posts.length;
 
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-gray-50">
+    <div className="min-h-screen pt-10 pb-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
         {/* Search Header */}
         <div className="max-w-3xl mx-auto mb-16">

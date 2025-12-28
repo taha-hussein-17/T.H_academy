@@ -33,7 +33,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-gray-50">
+    <div className="min-h-screen pt-10 pb-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-12">
           

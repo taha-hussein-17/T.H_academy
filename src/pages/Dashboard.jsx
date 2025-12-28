@@ -59,7 +59,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pt-28 pb-20 px-4">
+    <div className="min-h-screen bg-gray-50/50 pt-10 pb-20 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}

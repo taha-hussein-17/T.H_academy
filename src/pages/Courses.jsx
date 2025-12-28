@@ -81,7 +81,7 @@ const Courses = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-16">
+    <div className="min-h-screen bg-white pt-10 pb-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-secondary mb-4">Explore Our Courses</h1>

@@ -53,7 +53,7 @@ const Home = () => {
   return (
     <div className="overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-28 pb-20 bg-white overflow-hidden">
+      <section className="relative min-h-screen flex items-center pt-10 pb-20 bg-white overflow-hidden">
         {/* Background Animation */}
         <div className="absolute inset-0 overflow-hidden -z-10">
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[120px] animate-pulse" />

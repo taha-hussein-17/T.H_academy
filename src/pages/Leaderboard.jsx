@@ -79,7 +79,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-gray-50/50">
+    <div className="min-h-screen pt-10 pb-20 bg-gray-50/50">
       <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16 space-y-4">
