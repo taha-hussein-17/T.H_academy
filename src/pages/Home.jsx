@@ -688,7 +688,7 @@ const Home = () => {
               <Button 
                 variant="secondary" 
                 size="lg" 
-                className="bg-white text-primary hover:bg-gray-100 px-12 h-16 text-lg"
+                className="border-white text-white hover:bg-white/10 px-12 h-16 text-lg"
                 onClick={() => navigate('/signup')}
               >
                 Join for Free
