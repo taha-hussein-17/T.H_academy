@@ -26,12 +26,23 @@ let LOCAL_COURSES = getLocalData('tha_courses', [
     tags: ['React', 'Frontend', 'Web'],
     image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=60',
     curriculum: [
-      { title: "Introduction to React 19", duration: "45:00", free: true },
-      { title: "Hooks & Functional Components", duration: "1:20:00", free: true },
-      { title: "State Management with Redux Toolkit", duration: "2:15:00", free: false },
-      { title: "Advanced Patterns & Custom Hooks", duration: "1:45:00", free: false },
-      { title: "Testing with Vitest", duration: "1:10:00", free: false },
-      { title: "Performance Optimization", duration: "55:00", free: false }
+      { 
+        id: 'l1-1',
+        title: "Introduction to React 19", 
+        duration: "45:00", 
+        free: true,
+        quiz: {
+          questions: [
+            { id: 'q1', question: 'ما هي الميزة الجديدة الأساسية في React 19 التي تقوم بتحسين الأداء تلقائياً؟', options: ['React Compiler', 'React Memo', 'Virtual DOM', 'React Router'], correct: 0 },
+            { id: 'q2', question: 'ما هو الـ Hook الجديد المستخدم لاستهلاك الـ Promises مباشرة؟', options: ['use', 'useEffect', 'usePromise', 'useResource'], correct: 0 }
+          ]
+        }
+      },
+      { id: 'l1-2', title: "Hooks & Functional Components", duration: "1:20:00", free: true },
+      { id: 'l1-3', title: "State Management with Redux Toolkit", duration: "2:15:00", free: false },
+      { id: 'l1-4', title: "Advanced Patterns & Custom Hooks", duration: "1:45:00", free: false },
+      { id: 'l1-5', title: "Testing with Vitest", duration: "1:10:00", free: false },
+      { id: 'l1-6', title: "Performance Optimization", duration: "55:00", free: false }
     ],
     learningPoints: [
       "Master React 19 features & compiler",
@@ -431,6 +442,35 @@ let LOCAL_COMMUNITY = getLocalData('tha_community', [
     tags: ['React', 'Help']
   }
 ]);
+
+let LOCAL_CHATS = getLocalData('tha_chats', [
+  {
+    id: 'chat-1',
+    participants: ['admin', 'u1'],
+    messages: [
+      { sender: 'admin', text: 'أهلاً بك يا أحمد، كيف يمكنني مساعدتك اليوم؟', timestamp: new Date(Date.now() - 86400000).toISOString() },
+      { sender: 'u1', text: 'أهلاً أستاذ طه، لدي استفسار بخصوص كورس React.', timestamp: new Date(Date.now() - 43200000).toISOString() }
+    ]
+  }
+]);
+
+// Chat Functions
+export const getChatMessages = async (userId) => {
+  const chat = LOCAL_CHATS.find(c => c.participants.includes(userId));
+  return chat ? chat.messages : [];
+};
+
+export const sendChatMessage = async (userId, text) => {
+  let chat = LOCAL_CHATS.find(c => c.participants.includes(userId));
+  if (!chat) {
+    chat = { id: 'chat-' + Date.now(), participants: ['admin', userId], messages: [] };
+    LOCAL_CHATS.push(chat);
+  }
+  const newMessage = { sender: userId, text, timestamp: new Date().toISOString() };
+  chat.messages.push(newMessage);
+  saveLocalData('tha_chats', LOCAL_CHATS);
+  return newMessage;
+};
 
 // --- In-Memory Cache ---
 let cache = {

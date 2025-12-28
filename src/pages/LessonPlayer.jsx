@@ -10,9 +10,132 @@ import {
   Menu, 
   X, 
   Loader2,
-  Award
+  Award,
+  HelpCircle,
+  AlertCircle
 } from 'lucide-react';
 import Button from '../components/Button';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const QuizModal = ({ quiz, onComplete, onClose }) => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+
+  const handleNext = () => {
+    if (selectedOption === quiz.questions[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+
+    if (currentQuestion < quiz.questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedOption(null);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  const handleFinish = () => {
+    if (score >= Math.ceil(quiz.questions.length / 2)) {
+      onComplete(true);
+    } else {
+      onComplete(false);
+    }
+  };
+
+  if (showResult) {
+    const passed = score >= Math.ceil(quiz.questions.length / 2);
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white rounded-3xl p-8 max-w-md w-full text-center"
+        >
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${passed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            {passed ? <Award size={40} /> : <AlertCircle size={40} />}
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {passed ? 'أحسنت! اجتزت الاختبار' : 'حاول مرة أخرى'}
+          </h2>
+          <p className="text-gray-600 mb-8">
+            لقد أجبت بشكل صحيح على {score} من أصل {quiz.questions.length} أسئلة
+          </p>
+          <div className="flex gap-4">
+            <Button onClick={onClose} variant="secondary" className="flex-1">إغلاق</Button>
+            {passed ? (
+              <Button onClick={() => { handleFinish(); onClose(); }} className="flex-1">المتابعة</Button>
+            ) : (
+              <Button onClick={() => { 
+                setCurrentQuestion(0); 
+                setScore(0); 
+                setShowResult(false); 
+                setSelectedOption(null); 
+              }} className="flex-1">إعادة المحاولة</Button>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const question = quiz.questions[currentQuestion];
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-3xl p-8 max-w-2xl w-full"
+      >
+        <div className="flex justify-between items-center mb-8">
+          <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+            Question {currentQuestion + 1} of {quiz.questions.length}
+          </span>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X size={24} />
+          </button>
+        </div>
+
+        <h3 className="text-xl font-bold text-gray-900 mb-8 leading-relaxed">
+          {question.question}
+        </h3>
+
+        <div className="space-y-4 mb-8">
+          {question.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedOption(index)}
+              className={`w-full p-4 rounded-xl text-right transition-all border-2 flex items-center justify-between ${
+                selectedOption === index 
+                ? 'border-primary bg-primary/5 text-primary font-bold' 
+                : 'border-gray-100 hover:border-gray-200 text-gray-600'
+              }`}
+            >
+              <span>{option}</span>
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                selectedOption === index ? 'border-primary' : 'border-gray-300'
+              }`}>
+                {selectedOption === index && <div className="w-3 h-3 bg-primary rounded-full" />}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex justify-end">
+          <Button 
+            onClick={handleNext} 
+            disabled={selectedOption === null}
+            className="px-8"
+          >
+            {currentQuestion === quiz.questions.length - 1 ? 'إنهـاء' : 'التالي'}
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 const LessonPlayer = () => {
   const { courseId, lessonId } = useParams();
@@ -23,9 +146,10 @@ const LessonPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showQuiz, setShowQuiz] = useState(false);
 
-  // Mock lessons for the platform
-  const lessons = [
+  // Use real lessons from course if available, fallback to mock
+  const lessons = course?.curriculum || [
     { id: '1', title: "Introduction to the Course", duration: "15:00", videoUrl: "https://www.youtube.com/embed/SqcY0GlETPk" },
     { id: '2', title: "Environment Setup", duration: "25:00", videoUrl: "https://www.youtube.com/embed/w7ejDZ8SWv8" },
     { id: '3', title: "Core Concepts Deep Dive", duration: "45:00", videoUrl: "https://www.youtube.com/embed/Ke90Tje7VS0" },
@@ -34,7 +158,7 @@ const LessonPlayer = () => {
     { id: '6', title: "Deployment & Optimization", duration: "35:00", videoUrl: "https://www.youtube.com/embed/2-crBg6wNvE" },
   ];
 
-  const currentLesson = lessons.find(l => l.id === lessonId) || lessons[0];
+  const currentLesson = lessons.find(l => l.id === lessonId || l.title === lessonId) || lessons[0];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,17 +183,34 @@ const LessonPlayer = () => {
     if (!user) return;
     try {
       await updateLessonProgress(user.uid, courseId, currentLesson.id);
-      setCompletedLessons([...completedLessons, currentLesson.id]);
+      if (!completedLessons.includes(currentLesson.id)) {
+        setCompletedLessons([...completedLessons, currentLesson.id]);
+      }
       
-      // Move to next lesson if available
-      const currentIndex = lessons.findIndex(l => l.id === currentLesson.id);
-      if (currentIndex < lessons.length - 1) {
-        const nextLesson = lessons[currentIndex + 1];
-        navigate(`/courses/${courseId}/lessons/${nextLesson.id}`);
+      // If quiz exists, show it before moving next
+      if (currentLesson.quiz) {
+        setShowQuiz(true);
+      } else {
+        moveToNextLesson();
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const moveToNextLesson = () => {
+    const currentIndex = lessons.findIndex(l => l.id === currentLesson.id);
+    if (currentIndex < lessons.length - 1) {
+      const nextLesson = lessons[currentIndex + 1];
+      navigate(`/courses/${courseId}/lessons/${nextLesson.id}`);
+    }
+  };
+
+  const handleQuizComplete = (passed) => {
+    if (passed) {
+      moveToNextLesson();
+    }
+    setShowQuiz(false);
   };
 
   if (loading) {
@@ -82,6 +223,15 @@ const LessonPlayer = () => {
 
   return (
     <div className="flex h-screen bg-gray-900 overflow-hidden">
+      {/* Quiz Modal */}
+      {showQuiz && (
+        <QuizModal 
+          quiz={currentLesson.quiz} 
+          onComplete={handleQuizComplete} 
+          onClose={() => setShowQuiz(false)} 
+        />
+      )}
+
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'w-80' : 'w-0'} bg-gray-800 flex flex-col transition-all duration-300 relative border-r border-gray-700`}>
         <div className="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -172,6 +322,15 @@ const LessonPlayer = () => {
                   <p className="text-gray-400">Section 1 • Lesson {lessons.findIndex(l => l.id === currentLesson.id) + 1}</p>
                 </div>
                 <div className="flex gap-4">
+                  {currentLesson.quiz && (
+                    <Button 
+                      onClick={() => setShowQuiz(true)}
+                      variant="secondary"
+                      className="flex items-center gap-2 bg-yellow-600/20 text-yellow-500 border-yellow-500/30 hover:bg-yellow-600/30"
+                    >
+                      <HelpCircle size={18} /> Take Quiz
+                    </Button>
+                  )}
                   {!completedLessons.includes(currentLesson.id) && (
                     <Button 
                       onClick={handleComplete}

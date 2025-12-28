@@ -58,7 +58,7 @@ const Checkout = () => {
     e.preventDefault();
     setProcessing(true);
     
-    // Simulate payment processing delay
+    // Simulate payment processing delay (Stripe/PayPal imitation)
     setTimeout(async () => {
       try {
         await enrollInCourse(user.uid, courseId);
@@ -67,13 +67,13 @@ const Checkout = () => {
         
         // Redirect to course after 3 seconds
         setTimeout(() => {
-          navigate(`/course/${courseId}`);
+          navigate(`/courses/${courseId}/lessons/1`);
         }, 3000);
       } catch (err) {
         console.error(err);
         setProcessing(false);
       }
-    }, 2000);
+    }, 2500);
   };
 
   if (loading) {
@@ -146,83 +146,98 @@ const Checkout = () => {
                       }`}
                     >
                       <CreditCard className="w-5 h-5" />
-                      <span className="font-semibold">Credit Card</span>
+                      <span className="font-semibold">Stripe / Card</span>
                     </button>
                     <button
-                      onClick={() => setPaymentMethod('wallet')}
+                      onClick={() => setPaymentMethod('paypal')}
                       className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                        paymentMethod === 'wallet' 
-                        ? 'border-primary bg-primary/5 text-primary shadow-lg shadow-primary/10' 
+                        paymentMethod === 'paypal' 
+                        ? 'border-[#0070ba] bg-[#0070ba]/5 text-[#0070ba] shadow-lg shadow-[#0070ba]/10' 
                         : 'border-gray-100 hover:border-gray-200 text-gray-500'
                       }`}
                     >
-                      <Wallet className="w-5 h-5" />
-                      <span className="font-semibold">Digital Wallet</span>
+                      <div className="w-5 h-5 bg-[#0070ba] text-white rounded-full flex items-center justify-center text-[10px] font-bold">P</div>
+                      <span className="font-semibold">PayPal</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Form Fields */}
                 <form onSubmit={handleCheckout} className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Cardholder Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="John Doe"
-                      className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Card Number</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="cardNumber"
-                        required
-                        value={formData.cardNumber}
-                        onChange={handleInputChange}
-                        placeholder="0000 0000 0000 0000"
-                        className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all pl-14"
-                      />
-                      <CreditCard className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Expiry Date</label>
-                      <input
-                        type="text"
-                        name="expiry"
-                        required
-                        value={formData.expiry}
-                        onChange={handleInputChange}
-                        placeholder="MM/YY"
-                        className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">CVV</label>
-                      <div className="relative">
+                  {paymentMethod === 'card' ? (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Cardholder Name</label>
                         <input
-                          type="password"
-                          name="cvv"
+                          type="text"
+                          name="name"
                           required
-                          maxLength="3"
-                          value={formData.cvv}
+                          value={formData.name}
                           onChange={handleInputChange}
-                          placeholder="***"
-                          className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all pr-12"
+                          placeholder="John Doe"
+                          className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                         />
-                        <Lock className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Card Number</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="cardNumber"
+                            required
+                            value={formData.cardNumber}
+                            onChange={handleInputChange}
+                            placeholder="0000 0000 0000 0000"
+                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all pl-14"
+                          />
+                          <CreditCard className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Expiry Date</label>
+                          <input
+                            type="text"
+                            name="expiry"
+                            required
+                            value={formData.expiry}
+                            onChange={handleInputChange}
+                            placeholder="MM/YY"
+                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">CVV</label>
+                          <div className="relative">
+                            <input
+                              type="password"
+                              name="cvv"
+                              required
+                              maxLength="3"
+                              value={formData.cvv}
+                              onChange={handleInputChange}
+                              placeholder="***"
+                              className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all pr-12"
+                            />
+                            <Lock className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 p-8 rounded-[2rem] border-2 border-dashed border-gray-200 text-center">
+                      <div className="w-16 h-16 bg-[#0070ba]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div className="text-[#0070ba] text-2xl font-bold italic">PayPal</div>
+                      </div>
+                      <p className="text-gray-600 mb-6">سيتم توجيهك إلى صفحة PayPal لإتمام عملية الدفع بأمان.</p>
+                      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-500">Email:</span>
+                        <span className="font-bold text-gray-800">{user?.email}</span>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex gap-3">
                     <ShieldCheck className="text-blue-600 w-6 h-6 flex-shrink-0" />
@@ -234,16 +249,18 @@ const Checkout = () => {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg hover:bg-secondary transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group"
+                    className={`w-full text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group ${
+                      paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#005ea6] shadow-[#0070ba]/20' : 'bg-primary hover:bg-secondary shadow-primary/20'
+                    }`}
                   >
                     {processing ? (
                       <>
                         <Loader2 className="w-6 h-6 animate-spin" />
-                        Processing Payment...
+                        {paymentMethod === 'paypal' ? 'Connecting to PayPal...' : 'Processing Payment...'}
                       </>
                     ) : (
                       <>
-                        Complete Enrollment
+                        {paymentMethod === 'paypal' ? 'Pay with PayPal' : 'Complete Enrollment'}
                         <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
