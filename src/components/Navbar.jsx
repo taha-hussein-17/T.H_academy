@@ -1,15 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Menu, X, User as UserIcon, LogOut, Search } from 'lucide-react';
+import { BookOpen, Menu, X, User as UserIcon, LogOut, Search, Bell } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from './Button';
+import { getNotifications, markNotificationRead } from '../utils/db';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user) {
+        const data = await getNotifications(user.uid);
+        setNotifications(data || []);
+      }
+    };
+    fetchNotifications();
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleMarkRead = async (id) => {
+    await markNotificationRead(id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,6 +97,70 @@ const Navbar = () => {
             <Link to="/search" className="p-2 text-gray-400 hover:text-primary transition-colors">
               <Search size={20} />
             </Link>
+
+            {user && (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="p-2 text-gray-400 hover:text-primary transition-colors relative"
+                >
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[110]"
+                    >
+                      <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+                        <h4 className="font-black text-secondary uppercase tracking-widest text-xs">Notifications</h4>
+                        {unreadCount > 0 && (
+                          <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            {unreadCount} New
+                          </span>
+                        )}
+                      </div>
+                      <div className="max-h-[400px] overflow-y-auto">
+                        {notifications.length > 0 ? (
+                          notifications.map((notif) => (
+                            <div 
+                              key={notif.id}
+                              onClick={() => handleMarkRead(notif.id)}
+                              className={`p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer relative ${!notif.read ? 'bg-primary/5' : ''}`}
+                            >
+                              {!notif.read && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />}
+                              <p className="text-sm font-bold text-secondary mb-1">{notif.title}</p>
+                              <p className="text-xs text-gray-500 line-clamp-2">{notif.message}</p>
+                              <p className="text-[10px] text-gray-400 mt-2 font-medium">{new Date(notif.date).toLocaleDateString()}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-8 text-center text-gray-400">
+                            <Bell className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                            <p className="text-sm font-medium">No notifications yet</p>
+                          </div>
+                        )}
+                      </div>
+                      <Link 
+                        to="/settings?tab=notifications" 
+                        className="block p-4 text-center text-xs font-bold text-primary hover:bg-gray-50 transition-colors"
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        View All Settings
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             {user ? (
               <div className="flex items-center gap-4 pl-6 border-l border-gray-100">

@@ -443,6 +443,13 @@ let LOCAL_COMMUNITY = getLocalData('tha_community', [
   }
 ]);
 
+let LOCAL_NOTIFICATIONS = getLocalData('tha_notifications', [
+  { id: 'n1', title: 'New Course!', message: 'Next.js 15 Fullstack Course is now available.', time: new Date().toISOString(), read: false, type: 'course' },
+  { id: 'n2', title: 'Achievement Unlocked', message: 'You completed your first quiz with 100%!', time: new Date().toISOString(), read: true, type: 'badge' },
+]);
+
+let LOCAL_REVIEWS = getLocalData('tha_reviews', []);
+
 let LOCAL_CHATS = getLocalData('tha_chats', [
   {
     id: 'chat-1',
@@ -453,6 +460,28 @@ let LOCAL_CHATS = getLocalData('tha_chats', [
     ]
   }
 ]);
+
+// Notifications & Reviews Functions
+export const getNotifications = async (userId) => {
+  return LOCAL_NOTIFICATIONS;
+};
+
+export const markNotificationRead = async (id) => {
+  LOCAL_NOTIFICATIONS = LOCAL_NOTIFICATIONS.map(n => n.id === id ? { ...n, read: true } : n);
+  saveLocalData('tha_notifications', LOCAL_NOTIFICATIONS);
+  return true;
+};
+
+export const getReviewsByCourseId = async (courseId) => {
+  return LOCAL_REVIEWS.filter(r => r.courseId === courseId);
+};
+
+export const addReview = async (review) => {
+  const newReview = { ...review, id: Date.now().toString(), date: new Date().toISOString() };
+  LOCAL_REVIEWS.push(newReview);
+  saveLocalData('tha_reviews', LOCAL_REVIEWS);
+  return newReview;
+};
 
 // Chat Functions
 export const getChatMessages = async (userId) => {
