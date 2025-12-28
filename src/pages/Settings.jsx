@@ -11,24 +11,8 @@ import Button from '../components/Button';
 
 const Settings = () => {
   const { user, logout } = useAuth();
-  const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+  const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
-
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'account', label: 'Account', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'privacy', label: 'Privacy', icon: Shield },
-    { id: 'billing', label: 'Billing', icon: CreditCard },
-  ];
-
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab && tabs.find(t => t.id === tab)) {
-      setActiveTab(tab);
-    }
-  }, [searchParams, tabs]);
   const [success, setSuccess] = useState(false);
   const [notifStates, setNotifStates] = useState({
     'Course Updates': true,
@@ -50,6 +34,14 @@ const Settings = () => {
   const togglePrivacy = (title) => {
     setPrivacyStates(prev => ({ ...prev, [title]: !prev[title] }));
   };
+
+  const tabs = [
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'account', label: 'Account', icon: Lock },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'privacy', label: 'Privacy', icon: Shield },
+    { id: 'billing', label: 'Billing', icon: CreditCard },
+  ];
 
   const handleSave = () => {
     setIsSaving(true);
