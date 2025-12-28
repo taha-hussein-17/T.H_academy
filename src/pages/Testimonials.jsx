@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Quote, Star, ArrowRight } from 'lucide-react';
 import { getTestimonials } from '../utils/db';
 import Loading from '../components/Loading';
 
 const Testimonials = () => {
+  const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,7 +126,10 @@ const Testimonials = () => {
         <div className="mt-32 text-center">
           <h3 className="text-3xl font-black text-secondary mb-4 tracking-tighter">كن جزءاً من قصة نجاحنا القادمة</h3>
           <p className="text-gray-500 font-medium mb-10">ابدأ رحلتك اليوم وانضم إلى أكثر من 5,000 طالب ناجح.</p>
-          <button className="px-12 py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-secondary transition-all shadow-xl shadow-primary/20 flex items-center gap-4 mx-auto group">
+          <button 
+            onClick={() => navigate('/courses')}
+            className="px-12 py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-secondary transition-all shadow-xl shadow-primary/20 flex items-center gap-4 mx-auto group"
+          >
             اشترك الآن في الكورسات
             <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
           </button>

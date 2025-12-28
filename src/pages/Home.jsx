@@ -95,7 +95,10 @@ const Home = () => {
                   Get Started Free
                   <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
                 </Button>
-                <button className="flex items-center justify-center gap-4 px-10 h-20 text-secondary font-black hover:bg-gray-50 rounded-3xl border-2 border-gray-100 transition-all hover:border-primary/20">
+                <button 
+                  onClick={() => navigate('/courses')}
+                  className="flex items-center justify-center gap-4 px-10 h-20 text-secondary font-black hover:bg-gray-50 rounded-3xl border-2 border-gray-100 transition-all hover:border-primary/20"
+                >
                   <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg">
                     <Play fill="currentColor" size={18} />
                   </div>
@@ -550,7 +553,11 @@ const Home = () => {
                     </li>
                   ))}
                 </ul>
-                <Button variant={plan.pro ? 'primary' : 'outline'} className="w-full h-16 rounded-2xl text-lg">
+                <Button 
+                  variant={plan.pro ? 'primary' : 'outline'} 
+                  className="w-full h-16 rounded-2xl text-lg"
+                  onClick={() => navigate('/courses')}
+                >
                   {plan.pro ? 'Get Pro Access' : 'Start for Free'}
                 </Button>
               </div>
@@ -629,7 +636,11 @@ const Home = () => {
                 <p className="text-xl text-gray-400 font-medium mb-12 leading-relaxed">
                   Don't learn alone. Join our Discord server to get help, share your progress, and network with other developers.
                 </p>
-                <Button size="lg" className="px-12 h-20 text-xl rounded-[2rem]">
+                <Button 
+                  size="lg" 
+                  className="px-12 h-20 text-xl rounded-[2rem]"
+                  onClick={() => navigate('/community')}
+                >
                   Join Discord Community
                 </Button>
               </div>

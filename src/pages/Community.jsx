@@ -10,7 +10,12 @@ import {
   Hash as HashtagIcon,
   Calendar as CalendarDaysIcon
 } from 'lucide-react';
-import { getCommunityPosts, addCommunityPost } from '../utils/db';
+import { 
+  getCommunityPosts, 
+  addCommunityPost, 
+  likeCommunityPost, 
+  addCommunityComment 
+} from '../utils/db';
 import { useAuth } from '../context/AuthContext';
 import Loading from '../components/Loading';
 
@@ -22,6 +27,8 @@ const Community = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('All');
   const [isPosting, setIsPosting] = useState(false);
+  const [commentingOn, setCommentingOn] = useState(null);
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     fetchPosts();
@@ -30,8 +37,35 @@ const Community = () => {
   const fetchPosts = async () => {
     setLoading(true);
     const data = await getCommunityPosts();
-    setPosts(data);
+    setPosts([...data]);
     setLoading(false);
+  };
+
+  const handleLike = async (postId) => {
+    if (!user) return;
+    const updatedPost = await likeCommunityPost(postId, user.uid);
+    if (updatedPost) {
+      setPosts(posts.map(p => p.id === postId ? { ...updatedPost } : p));
+    }
+  };
+
+  const handleAddComment = async (postId) => {
+    if (!user || !newComment.trim()) return;
+    const comment = {
+      author: user.displayName || 'User',
+      content: newComment,
+    };
+    const addedComment = await addCommunityComment(postId, comment);
+    if (addedComment) {
+      setPosts(posts.map(p => {
+        if (p.id === postId) {
+          return { ...p, comments: [...p.comments, addedComment] };
+        }
+        return p;
+      }));
+      setNewComment('');
+      setCommentingOn(null);
+    }
   };
 
   const handleCreatePost = async (e) => {
@@ -176,16 +210,49 @@ const Community = () => {
                     {/* Post Footer / Actions */}
                     <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                       <div className="flex space-x-6 space-x-reverse">
-                        <button className="flex items-center text-gray-500 hover:text-blue-600 transition-colors group">
-                          <HandThumbUpIcon className="w-5 h-5 ml-1.5" />
+                        <button 
+                          onClick={() => handleLike(post.id)}
+                          className={`flex items-center transition-colors group ${
+                            user && post.likedBy?.includes(user.uid) 
+                              ? 'text-blue-600' 
+                              : 'text-gray-500 hover:text-blue-600'
+                          }`}
+                        >
+                          <HandThumbUpIcon className={`w-5 h-5 ml-1.5 ${user && post.likedBy?.includes(user.uid) ? 'fill-current' : ''}`} />
                           <span className="text-sm font-medium">{post.likes}</span>
                         </button>
-                        <button className="flex items-center text-gray-500 hover:text-green-600 transition-colors group">
+                        <button 
+                          onClick={() => setCommentingOn(commentingOn === post.id ? null : post.id)}
+                          className={`flex items-center transition-colors group ${
+                            commentingOn === post.id ? 'text-green-600' : 'text-gray-500 hover:text-green-600'
+                          }`}
+                        >
                           <ChatBubbleLeftRightIcon className="w-5 h-5 ml-1.5" />
                           <span className="text-sm font-medium">{post.comments.length}</span>
                         </button>
                       </div>
                     </div>
+
+                    {/* Comment Input */}
+                    {commentingOn === post.id && (
+                      <div className="mt-4 flex items-center space-x-2 space-x-reverse">
+                        <input
+                          type="text"
+                          placeholder="اكتب تعليقاً..."
+                          className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddComment(post.id)}
+                        />
+                        <button
+                          onClick={() => handleAddComment(post.id)}
+                          disabled={!newComment.trim()}
+                          className="bg-blue-600 text-white p-2 rounded-xl disabled:opacity-50"
+                        >
+                          <PaperAirplaneIcon className="w-4 h-4 transform rotate-180" />
+                        </button>
+                      </div>
+                    )}
 
                     {/* Quick Comments Section */}
                     {post.comments.length > 0 && (

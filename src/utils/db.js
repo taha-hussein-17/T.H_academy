@@ -527,12 +527,46 @@ export const addCommunityPost = async (post) => {
     id: 'post-' + Date.now(),
     timestamp: new Date().toISOString(),
     likes: 0,
+    likedBy: [],
     comments: [],
     ...post
   };
   LOCAL_COMMUNITY = [newPost, ...LOCAL_COMMUNITY];
   saveLocalData('tha_community', LOCAL_COMMUNITY);
   return newPost;
+};
+
+export const likeCommunityPost = async (postId, userId) => {
+  const post = LOCAL_COMMUNITY.find(p => p.id === postId);
+  if (post) {
+    if (!post.likedBy) post.likedBy = [];
+    const index = post.likedBy.indexOf(userId);
+    if (index === -1) {
+      post.likedBy.push(userId);
+      post.likes += 1;
+    } else {
+      post.likedBy.splice(index, 1);
+      post.likes -= 1;
+    }
+    saveLocalData('tha_community', LOCAL_COMMUNITY);
+    return post;
+  }
+  return null;
+};
+
+export const addCommunityComment = async (postId, comment) => {
+  const post = LOCAL_COMMUNITY.find(p => p.id === postId);
+  if (post) {
+    const newComment = {
+      id: 'c' + Date.now(),
+      timestamp: new Date().toISOString(),
+      ...comment
+    };
+    post.comments.push(newComment);
+    saveLocalData('tha_community', LOCAL_COMMUNITY);
+    return newComment;
+  }
+  return null;
 };
 
 // Learning Paths Functions

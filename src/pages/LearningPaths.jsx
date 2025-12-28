@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Rocket, 
   Clock, 
@@ -12,6 +13,7 @@ import { getLearningPaths } from '../utils/db';
 import Loading from '../components/Loading';
 
 const LearningPaths = () => {
+  const navigate = useNavigate();
   const [paths, setPaths] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -114,7 +116,10 @@ const LearningPaths = () => {
                   ))}
                 </div>
 
-                <button className={`mt-auto w-full py-4 rounded-2xl bg-secondary text-white font-black uppercase tracking-widest text-sm hover:bg-primary transition-all flex items-center justify-center gap-3 shadow-lg shadow-secondary/10`}>
+                <button 
+                  onClick={() => navigate('/courses')}
+                  className={`mt-auto w-full py-4 rounded-2xl bg-secondary text-white font-black uppercase tracking-widest text-sm hover:bg-primary transition-all flex items-center justify-center gap-3 shadow-lg shadow-secondary/10`}
+                >
                   ابدأ المسار الآن
                   <ChevronRight size={18} />
                 </button>
@@ -137,10 +142,16 @@ const LearningPaths = () => {
               انضم إلى آلاف الطلاب الذين حققوا أحلامهم من خلال مساراتنا التعليمية المتكاملة.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-10 py-4 bg-white text-primary rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform">
+              <button 
+                onClick={() => navigate('/contact')}
+                className="px-10 py-4 bg-white text-primary rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform"
+              >
                 استشارة تعليمية مجانية
               </button>
-              <button className="px-10 py-4 bg-secondary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform">
+              <button 
+                onClick={() => navigate('/courses')}
+                className="px-10 py-4 bg-secondary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform"
+              >
                 تصفح كافة المسارات
               </button>
             </div>

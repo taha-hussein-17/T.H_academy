@@ -7,6 +7,8 @@ import Loading from '../components/Loading';
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState(null);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -16,6 +18,15 @@ const Events = () => {
     };
     fetchEvents();
   }, []);
+
+  const handleBooking = (eventId) => {
+    setBooking(eventId);
+    setTimeout(() => {
+      setBooking(null);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }, 1500);
+  };
 
   if (loading) return <Loading />;
 
@@ -87,13 +98,31 @@ const Events = () => {
                   {event.description}
                 </p>
 
-                <button className="w-full py-4 bg-secondary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-primary transition-all flex items-center justify-center gap-3 shadow-lg shadow-secondary/10">
-                  احجز مقعدك الآن
-                  <Video size={18} />
+                <button 
+                  onClick={() => handleBooking(event.id)}
+                  disabled={booking === event.id}
+                  className="w-full py-4 bg-secondary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-primary transition-all flex items-center justify-center gap-3 shadow-lg shadow-secondary/10 disabled:opacity-70"
+                >
+                  {booking === event.id ? 'جاري الحجز...' : (
+                    <>
+                      احجز مقعدك الآن
+                      <Video size={18} />
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
           ))}
+        </div>
+      </div>
+
+      {/* Toast Notification */}
+      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${showToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+        <div className="bg-secondary text-white px-8 py-4 rounded-2xl shadow-2xl font-bold flex items-center gap-3">
+          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+            <Video size={18} />
+          </div>
+          تم حجز مقعدك بنجاح! ستصلك تفاصيل الحضور عبر البريد.
         </div>
       </div>
     </div>

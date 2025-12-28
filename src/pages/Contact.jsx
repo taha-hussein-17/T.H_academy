@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import Button from '../components/Button';
 
 const Contact = () => {
+  const [status, setStatus] = useState('idle'); // idle, loading, success
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    setTimeout(() => {
+      setStatus('success');
+      setTimeout(() => setStatus('idle'), 3000);
+    }, 2000);
+  };
   return (
     <div className="bg-gray-50 min-h-screen py-32 px-4">
       <div className="max-w-7xl mx-auto">
@@ -28,27 +38,38 @@ const Contact = () => {
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
             
-            <form className="space-y-8 relative z-10">
+            <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <label className="text-sm font-black text-gray-400 uppercase tracking-widest ml-1">First Name</label>
-                  <input type="text" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="John" />
+                  <input required type="text" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="John" />
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-black text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
-                  <input type="text" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="Doe" />
+                  <input required type="text" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="Doe" />
                 </div>
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                <input type="email" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="john@example.com" />
+                <input required type="email" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300" placeholder="john@example.com" />
               </div>
               <div className="space-y-3">
                 <label className="text-sm font-black text-gray-400 uppercase tracking-widest ml-1">Message</label>
-                <textarea rows="4" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300 resize-none" placeholder="How can we help you?"></textarea>
+                <textarea required rows="4" className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 outline-none transition font-bold text-secondary placeholder:text-gray-300 resize-none" placeholder="How can we help you?"></textarea>
               </div>
-              <Button className="w-full py-5 flex items-center justify-center gap-3 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl shadow-primary/25">
-                <Send className="w-6 h-6" /> Send Message
+              <Button 
+                disabled={status !== 'idle'}
+                className="w-full py-5 flex items-center justify-center gap-3 rounded-2xl text-lg font-black uppercase tracking-widest shadow-xl shadow-primary/25 disabled:opacity-70"
+              >
+                {status === 'loading' ? 'Sending...' : status === 'success' ? (
+                  <>
+                    <CheckCircle className="w-6 h-6" /> Sent Successfully
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-6 h-6" /> Send Message
+                  </>
+                )}
               </Button>
             </form>
           </motion.div>
